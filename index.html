@@ -1170,37 +1170,51 @@ function hasValidAccess() {
 // ── INIT ──
 window.addEventListener('load', () => {
   applyTheme(config.theme || '');
-  if (!hasValidAccess()) {
-    setTimeout(() => { hideScreen('splash'); showScreen('access'); }, 1800);
-    return;
-  }
+
+  // Wait for Firebase Auth to be ready
   if (auth) {
     auth.onAuthStateChanged(async (firebaseUser) => {
-      hideScreen('splash');
+      // Always hide splash first
+      setTimeout(() => hideScreen('splash'), 500);
+
+      // Check access code
+      if (!hasValidAccess()) {
+        setTimeout(() => showScreen('access'), 600);
+        return;
+      }
+
       if (firebaseUser) {
+        // User is logged in — load their data
         try {
-          const snap = await db.collection('accounts').doc(firebaseUser.uid).get();
-          if (snap.exists) {
-            user = snap.data();
-            user.id = firebaseUser.uid;
-          } else {
-            user = { id: firebaseUser.uid, nombre: firebaseUser.email.split('@')[0], email: firebaseUser.email, avatar: firebaseUser.email[0].toUpperCase(), colorIdx: 0 };
-          }
+          user = { id: firebaseUser.uid, email: firebaseUser.email, nombre: firebaseUser.email.split('@')[0], avatar: firebaseUser.email[0].toUpperCase(), colorIdx: 0 };
+          // Try to get full profile
+          try {
+            const snap = await db.collection('accounts').doc(firebaseUser.uid).get();
+            if (snap.exists) { user = { ...snap.data(), id: firebaseUser.uid }; }
+          } catch(e) {}
           LSS('lumia_user', user);
           await loadUserData();
-          if (!LS('lumia_ob_done')) { showScreen('onboarding'); }
-          else { initApp(); }
+          setTimeout(() => {
+            if (!LS('lumia_ob_done')) { showScreen('onboarding'); }
+            else { initApp(); }
+          }, 100);
         } catch(e) {
-          showScreen('auth');
+          console.log('Load error:', e);
+          setTimeout(() => showScreen('auth'), 600);
         }
       } else {
-        if (!LS('lumia_ob_done')) { showScreen('onboarding'); }
-        else { showScreen('auth'); }
+        // Not logged in
+        setTimeout(() => {
+          if (!LS('lumia_ob_done')) { showScreen('onboarding'); }
+          else { showScreen('auth'); }
+        }, 600);
       }
     });
   } else {
+    // Firebase not available - fallback
     setTimeout(() => {
       hideScreen('splash');
+      if (!hasValidAccess()) { showScreen('access'); return; }
       if (!LS('lumia_ob_done')) { showScreen('onboarding'); }
       else if (!user) { showScreen('auth'); }
       else { loadUserData().then(() => initApp()); }
@@ -1306,7 +1320,9 @@ function doGoogleLogin() {
 }
 
 async function loadUserData() {
-  const uid = (auth && auth.currentUser) ? auth.currentUser.uid : String(user.id);
+  const uid = (auth && auth.currentUser) ? auth.currentUser.uid : (user ? String(user.id) : null);
+  if (!uid) return;
+  console.log('Loading data for uid:', uid);
   // Try loading from Firebase first, fallback to localStorage
   const cloudGrupos = await loadUserDataCloud(uid, 'grupos');
   const cloudEventos = await loadUserDataCloud(uid, 'eventos');
@@ -1342,6 +1358,7 @@ function saveAll() {
   if (!user) return;
   const uid = getUID();
   if (!uid) return;
+  console.log('Saving data for uid:', uid);
   LSS(`lumia_grupos_${uid}`, grupos);
   LSS(`lumia_eventos_${uid}`, eventos);
   LSS(`lumia_tareas_${uid}`, tareas);
