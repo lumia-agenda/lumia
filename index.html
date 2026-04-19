@@ -391,6 +391,7 @@ body.theme-peach{--primary:#E8856A;--primary-dark:#C96A50;--primary-light:#F9E6E
 </style>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 </head>
 <body>
 
@@ -943,9 +944,12 @@ const firebaseConfig = {
 };
 
 let db = null;
+let auth = null;
 try {
   firebase.initializeApp(firebaseConfig);
   db = firebase.firestore();
+  auth = firebase.auth();
+  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 } catch(e) { console.log('Firebase init:', e.message); }
 
 async function saveUserDataCloud(uid, key, value) {
@@ -1166,18 +1170,42 @@ function hasValidAccess() {
 // ── INIT ──
 window.addEventListener('load', () => {
   applyTheme(config.theme || '');
-  setTimeout(() => {
-    hideScreen('splash');
-    if (!hasValidAccess()) {
-      showScreen('access');
-    } else if (!LS('lumia_ob_done')) {
-      showScreen('onboarding');
-    } else if (!user) {
-      showScreen('auth');
-    } else {
-      loadUserData().then(() => initApp());
-    }
-  }, 1800);
+  if (!hasValidAccess()) {
+    setTimeout(() => { hideScreen('splash'); showScreen('access'); }, 1800);
+    return;
+  }
+  if (auth) {
+    auth.onAuthStateChanged(async (firebaseUser) => {
+      hideScreen('splash');
+      if (firebaseUser) {
+        try {
+          const snap = await db.collection('accounts').doc(firebaseUser.uid).get();
+          if (snap.exists) {
+            user = snap.data();
+            user.id = firebaseUser.uid;
+          } else {
+            user = { id: firebaseUser.uid, nombre: firebaseUser.email.split('@')[0], email: firebaseUser.email, avatar: firebaseUser.email[0].toUpperCase(), colorIdx: 0 };
+          }
+          LSS('lumia_user', user);
+          await loadUserData();
+          if (!LS('lumia_ob_done')) { showScreen('onboarding'); }
+          else { initApp(); }
+        } catch(e) {
+          showScreen('auth');
+        }
+      } else {
+        if (!LS('lumia_ob_done')) { showScreen('onboarding'); }
+        else { showScreen('auth'); }
+      }
+    });
+  } else {
+    setTimeout(() => {
+      hideScreen('splash');
+      if (!LS('lumia_ob_done')) { showScreen('onboarding'); }
+      else if (!user) { showScreen('auth'); }
+      else { loadUserData().then(() => initApp()); }
+    }, 1800);
+  }
 });
 ;
 
@@ -1212,24 +1240,28 @@ async function doLogin() {
   const email = document.getElementById('login-email').value.trim();
   const pass = document.getElementById('login-pass').value;
   if (!email || !pass) { showToast('⚠️ Completá todos los campos'); return; }
-  // Try localStorage first
-  const users = LSG('lumia_users') || [];
-  let found = users.find(u => u.email === email && u.pass === pass);
-  // If not found locally, try Firebase
-  if (!found) {
-    showToast('🔄 Buscando tu cuenta...');
-    const cloudUser = await loadUserFromCloud(email, pass);
-    if (cloudUser) {
-      found = cloudUser;
-      users.push(found);
-      LSS('lumia_users', users);
+  if (!auth) { showToast('❌ Error de conexión'); return; }
+  try {
+    showToast('🔄 Ingresando...');
+    const cred = await auth.signInWithEmailAndPassword(email, pass);
+    const uid = cred.user.uid;
+    const snap = await db.collection('accounts').doc(uid).get();
+    if (snap.exists) {
+      user = snap.data();
+      user.id = uid;
+    } else {
+      user = { id: uid, nombre: email.split('@')[0], email, avatar: email[0].toUpperCase(), colorIdx: 0 };
+    }
+    LSS('lumia_user', user);
+    await loadUserData();
+    initApp();
+  } catch(e) {
+    if (e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
+      showToast('❌ Email o contraseña incorrectos');
+    } else {
+      showToast('❌ Error: ' + e.message);
     }
   }
-  if (!found) { showToast('❌ Email o contraseña incorrectos'); return; }
-  user = found;
-  LSS('lumia_user', user);
-  await loadUserData();
-  initApp();
 }
 
 async function doRegister() {
@@ -1239,16 +1271,23 @@ async function doRegister() {
   const materia = document.getElementById('reg-materia').value.trim();
   if (!nombre || !email || !pass) { showToast('⚠️ Completá todos los campos'); return; }
   if (pass.length < 6) { showToast('⚠️ La contraseña debe tener al menos 6 caracteres'); return; }
-  const users = LSG('lumia_users') || [];
-  if (users.find(u => u.email === email)) { showToast('❌ Ese email ya está registrado'); return; }
-  const newUser = { id: Date.now(), nombre, email, pass, materia, avatar: nombre[0].toUpperCase(), colorIdx: 0 };
-  users.push(newUser);
-  LSS('lumia_users', users);
-  user = newUser;
-  LSS('lumia_user', user);
-  await saveUserToCloud(newUser);
-  await loadUserData();
-  initApp();
+  if (!auth) { showToast('❌ Error de conexión'); return; }
+  try {
+    showToast('🔄 Creando tu cuenta...');
+    const cred = await auth.createUserWithEmailAndPassword(email, pass);
+    const uid = cred.user.uid;
+    user = { id: uid, nombre, email, materia, avatar: nombre[0].toUpperCase(), colorIdx: 0 };
+    await db.collection('accounts').doc(uid).set(user);
+    LSS('lumia_user', user);
+    await loadUserData();
+    initApp();
+  } catch(e) {
+    if (e.code === 'auth/email-already-in-use') {
+      showToast('❌ Ese email ya está registrado');
+    } else {
+      showToast('❌ Error: ' + e.message);
+    }
+  }
 }
 
 function doGoogleLogin() {
@@ -1317,10 +1356,11 @@ function saveAll() {
   saveUserDataCloud(uid, 'mood', moodHistory);
 }
 
-function doLogout() {
+async function doLogout() {
   if (!confirm('¿Cerrar sesión?')) return;
   user = null;
   localStorage.removeItem('lumia_user');
+  if (auth) await auth.signOut();
   showScreen('auth');
 }
 
