@@ -1026,8 +1026,8 @@ const tips = [
 
 const avatarColors = ['#B8A9E8','#F2C4CE','#E8856A','#7DC4A0','#D4AF7A','#9B8DD4'];
 const CODIGOS_VALIDOS = [
-  'LUMIA2025',//usados
-  'DOCENTE01',//usados
+  'LUMIA2025',
+  'DOCENTE01',
   'MAESTRA02',
   'PROFE2025',
   'AGENDA001',
@@ -1151,7 +1151,7 @@ window.addEventListener('load', () => {
     } else if (!user) {
       showScreen('auth');
     } else {
-      initApp();
+      loadUserData().then(() => initApp());
     }
   }, 1800);
 });
@@ -1954,6 +1954,8 @@ function guardarPerfil(){
 }
 
 // ── NAVEGACIÓN ──
+let pageHistory = ['home'];
+
 function goPage(page){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   const pageEl=document.getElementById('page-'+page);
@@ -1968,7 +1970,35 @@ function goPage(page){
   if(page==='habitos') renderHabitos();
   if(page==='gastos') renderGastos();
   if(page==='clases') renderClases();
+  if(pageHistory[pageHistory.length-1] !== page) pageHistory.push(page);
+  history.pushState({page}, '', '');
 }
+
+window.addEventListener('popstate', (e) => {
+  pageHistory.pop();
+  const prev = pageHistory[pageHistory.length-1] || 'home';
+  // Handle sub-views
+  const alumnoDetalle = document.getElementById('alumno-detalle');
+  const vistaLista = document.getElementById('alumnos-vista-lista');
+  const vistaGrupos = document.getElementById('alumnos-vista-grupos');
+  const notaDetalle = document.getElementById('nota-detalle');
+  const notasContent = document.getElementById('notas-content');
+  if(alumnoDetalle && alumnoDetalle.style.display !== 'none') {
+    alumnoDetalle.style.display = 'none';
+    if(vistaLista) vistaLista.style.display = 'block';
+    renderAlumnos();
+    history.pushState({page: 'alumnos'}, '', '');
+  } else if(vistaLista && vistaLista.style.display !== 'none' && vistaGrupos && vistaGrupos.style.display === 'none') {
+    volverGrupos();
+    history.pushState({page: 'alumnos'}, '', '');
+  } else if(notaDetalle && notaDetalle.style.display !== 'none') {
+    volverNotas();
+    history.pushState({page: 'notas'}, '', '');
+  } else {
+    goPage(prev);
+    history.pushState({page: prev}, '', '');
+  }
+});
 
 function goSubPage(page){ goPage(page); }
 
