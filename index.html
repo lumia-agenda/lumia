@@ -1306,7 +1306,7 @@ function doGoogleLogin() {
 }
 
 async function loadUserData() {
-  const uid = String(user.id);
+  const uid = (auth && auth.currentUser) ? auth.currentUser.uid : String(user.id);
   // Try loading from Firebase first, fallback to localStorage
   const cloudGrupos = await loadUserDataCloud(uid, 'grupos');
   const cloudEventos = await loadUserDataCloud(uid, 'eventos');
@@ -1332,9 +1332,16 @@ async function loadUserData() {
   moodHistory = cloudMood || LSG(`lumia_mood_${uid}`) || {};
 }
 
+function getUID() {
+  if (auth && auth.currentUser) return auth.currentUser.uid;
+  if (user) return String(user.id);
+  return null;
+}
+
 function saveAll() {
   if (!user) return;
-  const uid = String(user.id);
+  const uid = getUID();
+  if (!uid) return;
   LSS(`lumia_grupos_${uid}`, grupos);
   LSS(`lumia_eventos_${uid}`, eventos);
   LSS(`lumia_tareas_${uid}`, tareas);
@@ -1344,7 +1351,6 @@ function saveAll() {
   LSS(`lumia_gastos_${uid}`, gastos);
   LSS(`lumia_clases_${uid}`, clases);
   LSS(`lumia_mood_${uid}`, moodHistory);
-  // Save to Firebase cloud
   saveUserDataCloud(uid, 'grupos', grupos);
   saveUserDataCloud(uid, 'eventos', eventos);
   saveUserDataCloud(uid, 'tareas', tareas);
