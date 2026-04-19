@@ -963,6 +963,30 @@ async function loadUserDataCloud(uid, key) {
   return null;
 }
 
+async function saveUserToCloud(userData) {
+  if (!db) return;
+  try {
+    await db.collection('accounts').doc(userData.email.replace(/[.@]/g,'_')).set({
+      id: String(userData.id),
+      nombre: userData.nombre,
+      email: userData.email,
+      pass: userData.pass,
+      materia: userData.materia || '',
+      avatar: userData.avatar || userData.nombre[0].toUpperCase(),
+      colorIdx: userData.colorIdx || 0
+    });
+  } catch(e) { console.log('Save user error:', e.message); }
+}
+
+async function loadUserFromCloud(email, pass) {
+  if (!db) return null;
+  try {
+    const snap = await db.collection('accounts').doc(email.replace(/[.@]/g,'_')).get();
+    if (snap.exists && snap.data().pass === pass) return snap.data();
+  } catch(e) { console.log('Load user error:', e.message); }
+  return null;
+}
+
 function shake() {
   const inp = document.getElementById('access-input');
   if (!inp) return;
@@ -1184,19 +1208,31 @@ function switchAuth(tab) {
   document.getElementById('panel-register').classList.toggle('active', tab==='register');
 }
 
-function doLogin() {
+async function doLogin() {
   const email = document.getElementById('login-email').value.trim();
   const pass = document.getElementById('login-pass').value;
   if (!email || !pass) { showToast('⚠️ Completá todos los campos'); return; }
+  // Try localStorage first
   const users = LSG('lumia_users') || [];
-  const found = users.find(u => u.email === email && u.pass === pass);
+  let found = users.find(u => u.email === email && u.pass === pass);
+  // If not found locally, try Firebase
+  if (!found) {
+    showToast('🔄 Buscando tu cuenta...');
+    const cloudUser = await loadUserFromCloud(email, pass);
+    if (cloudUser) {
+      found = cloudUser;
+      users.push(found);
+      LSS('lumia_users', users);
+    }
+  }
   if (!found) { showToast('❌ Email o contraseña incorrectos'); return; }
   user = found;
   LSS('lumia_user', user);
-  loadUserData().then(() => initApp());
+  await loadUserData();
+  initApp();
 }
 
-function doRegister() {
+async function doRegister() {
   const nombre = document.getElementById('reg-nombre').value.trim();
   const email = document.getElementById('reg-email').value.trim();
   const pass = document.getElementById('reg-pass').value;
@@ -1210,7 +1246,9 @@ function doRegister() {
   LSS('lumia_users', users);
   user = newUser;
   LSS('lumia_user', user);
-  loadUserData().then(() => initApp());
+  await saveUserToCloud(newUser);
+  await loadUserData();
+  initApp();
 }
 
 function doGoogleLogin() {
