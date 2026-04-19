@@ -1,0 +1,2078 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<meta name="theme-color" content="#FAF8F5"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="Lumia"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<title>Lumia — Agenda Docente</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #FAF8F5;
+  --white: #FFFFFF;
+  --primary: #B8A9E8;
+  --primary-dark: #9B8DD4;
+  --primary-light: #EDE8F9;
+  --secondary: #F2C4CE;
+  --secondary-light: #FDF0F3;
+  --accent: #E8856A;
+  --accent-light: #FBF0EC;
+  --green: #7DC4A0;
+  --green-light: #EDF7F2;
+  --gold: #D4AF7A;
+  --gold-light: #FBF5EB;
+  --text: #2D2D2D;
+  --text2: #6B6B6B;
+  --text3: #ADADAD;
+  --border: #EEEAE4;
+  --shadow: 0 2px 16px rgba(0,0,0,0.07);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+  --radius: 20px;
+  --radius-sm: 12px;
+  --radius-xs: 8px;
+  --font-display: 'Playfair Display', serif;
+  --font: 'DM Sans', sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100dvh;overscroll-behavior:none;}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:100dvh;flex-direction:column;}
+.screen.active{display:flex;}
+
+
+/* ── ACCESS CODE SCREEN ── */
+#access{background:linear-gradient(160deg,#EDE8F9 0%,#FDF0F3 50%,#FAF8F5 100%);align-items:center;justify-content:center;padding:32px 24px;}
+.access-box{background:var(--white);border-radius:var(--radius);padding:32px 24px;width:100%;max-width:360px;box-shadow:var(--shadow-lg);text-align:center;}
+.access-logo{font-family:var(--font-display);font-size:38px;font-weight:700;color:var(--primary-dark);margin-bottom:6px;}
+.access-tagline{font-size:13px;color:var(--text2);margin-bottom:28px;}
+.access-input{width:100%;padding:16px;border:2px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font);font-size:20px;font-weight:700;color:var(--text);background:var(--bg);outline:none;text-align:center;letter-spacing:5px;text-transform:uppercase;transition:border-color 0.2s;margin-bottom:6px;}
+.access-input:focus{border-color:var(--primary);}
+.access-input.error{border-color:var(--accent);animation:shake 0.35s ease;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}}
+.access-btn{width:100%;padding:15px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;border:none;border-radius:var(--radius-sm);font-family:var(--font);font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(184,169,232,0.4);transition:all 0.2s;margin-top:10px;margin-bottom:16px;}
+.access-btn:active{transform:scale(0.98);}
+.access-hint{font-size:12px;color:var(--text3);line-height:1.7;}
+.access-error{font-size:12px;color:var(--accent);min-height:18px;margin-bottom:4px;font-weight:500;}
+/* ── ADMIN PANEL ── */
+#admin{background:var(--bg);overflow-y:auto;min-height:100dvh;flex-direction:column;}
+.admin-top{background:linear-gradient(135deg,#2D2D2D,#1a1a1a);padding:env(safe-area-inset-top,0) 20px 0;}
+.admin-top-inner{display:flex;align-items:center;justify-content:space-between;padding:16px 0 14px;}
+.admin-title{font-family:var(--font-display);font-size:20px;font-weight:700;color:white;}
+.admin-badge{background:var(--accent);color:white;font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.5px;}
+.admin-content{padding:20px;flex:1;overflow-y:auto;}
+.admin-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px;}
+.admin-stat{background:var(--white);border-radius:var(--radius-sm);padding:14px;text-align:center;border:1px solid var(--border);}
+.admin-stat-num{font-family:var(--font-display);font-size:24px;font-weight:700;color:var(--primary-dark);}
+.admin-stat-lbl{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;}
+.admin-sec{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:12px;}
+.gen-box{background:var(--white);border-radius:var(--radius);padding:20px;border:1px solid var(--border);margin-bottom:20px;}
+.gen-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px;}
+.gen-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.gen-select{flex:1;min-width:110px;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font);font-size:13px;color:var(--text);background:var(--bg);outline:none;}
+.gen-select:focus{border-color:var(--primary);}
+.btn-gen{padding:11px 20px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all 0.2s;width:100%;}
+.btn-gen:active{transform:scale(0.97);}
+.code-item{background:var(--bg);border-radius:var(--radius-sm);padding:13px 14px;display:flex;align-items:center;gap:10px;border:1px solid var(--border);margin-bottom:8px;}
+.code-item.used{opacity:0.45;}
+.code-text{font-family:monospace;font-size:17px;font-weight:700;letter-spacing:3px;color:var(--primary-dark);flex:1;}
+.code-info{font-size:11px;color:var(--text3);text-align:right;line-height:1.5;}
+.code-status{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;display:inline-block;margin-top:3px;}
+.status-disponible{background:var(--green-light);color:#3D8A5C;}
+.status-usado{background:var(--border);color:var(--text3);}
+.status-vencido{background:#FEF0EF;color:var(--accent);}
+.btn-copy{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-xs);padding:7px 12px;font-size:12px;font-weight:600;color:var(--primary-dark);cursor:pointer;font-family:var(--font);transition:all 0.15s;flex-shrink:0;}
+.btn-copy:active{background:var(--primary-light);}
+.btn-admin-exit{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:var(--radius-xs);padding:6px 14px;color:white;font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;}
+/* ── SPLASH ── */
+#splash{background:linear-gradient(160deg,#EDE8F9 0%,#FDF0F3 50%,#FAF8F5 100%);align-items:center;justify-content:center;gap:16px;}
+.splash-logo{font-family:var(--font-display);font-size:52px;font-weight:700;color:var(--primary-dark);letter-spacing:-1px;}
+.splash-tagline{font-size:14px;color:var(--text2);font-weight:400;letter-spacing:0.5px;}
+.splash-dot{width:8px;height:8px;border-radius:50%;background:var(--primary);animation:pulse 1.4s infinite;}
+@keyframes pulse{0%,100%{opacity:0.3;transform:scale(0.8);}50%{opacity:1;transform:scale(1.2);}}
+
+/* ── ONBOARDING ── */
+#onboarding{background:var(--white);overflow:hidden;}
+.ob-slides{display:flex;transition:transform 0.4s cubic-bezier(.4,0,.2,1);height:100dvh;}
+.ob-slide{min-width:100vw;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 32px;text-align:center;gap:20px;}
+.ob-emoji{font-size:72px;line-height:1;}
+.ob-title{font-family:var(--font-display);font-size:28px;font-weight:700;color:var(--text);line-height:1.3;}
+.ob-desc{font-size:15px;color:var(--text2);line-height:1.7;max-width:280px;}
+.ob-dots{display:flex;gap:8px;justify-content:center;}
+.ob-dot{width:8px;height:8px;border-radius:4px;background:var(--border);transition:all 0.3s;}
+.ob-dot.active{width:24px;background:var(--primary);}
+.ob-footer{padding:24px 32px 40px;display:flex;align-items:center;justify-content:space-between;}
+.btn-skip{font-size:14px;color:var(--text3);background:none;border:none;cursor:pointer;font-family:var(--font);}
+.btn-next{background:var(--primary);color:white;border:none;padding:14px 28px;border-radius:50px;font-family:var(--font);font-size:15px;font-weight:600;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 16px rgba(184,169,232,0.4);}
+.btn-next:active{transform:scale(0.97);}
+
+/* ── AUTH ── */
+#auth{background:var(--white);padding:0;}
+.auth-hero{background:linear-gradient(160deg,#EDE8F9,#FDF0F3);padding:50px 32px 40px;text-align:center;}
+.auth-logo{font-family:var(--font-display);font-size:40px;font-weight:700;color:var(--primary-dark);}
+.auth-sub{font-size:13px;color:var(--text2);margin-top:4px;letter-spacing:0.3px;}
+.auth-tabs{display:flex;background:var(--bg);border-radius:var(--radius-sm);padding:4px;margin:24px 24px 0;}
+.auth-tab{flex:1;padding:10px;border:none;background:none;border-radius:var(--radius-xs);font-family:var(--font);font-size:14px;font-weight:500;color:var(--text2);cursor:pointer;transition:all 0.2s;}
+.auth-tab.active{background:var(--white);color:var(--primary-dark);font-weight:600;box-shadow:var(--shadow);}
+.auth-form{padding:24px;}
+.auth-form .form-group{margin-bottom:16px;}
+.auth-form label{display:block;font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;}
+.auth-form input{width:100%;padding:14px 16px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font);font-size:15px;color:var(--text);background:var(--bg);outline:none;transition:border-color 0.2s;}
+.auth-form input:focus{border-color:var(--primary);}
+.btn-primary{width:100%;padding:15px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-family:var(--font);font-size:16px;font-weight:700;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 16px rgba(184,169,232,0.35);letter-spacing:-0.2px;}
+.btn-primary:active{transform:scale(0.98);}
+.auth-divider{text-align:center;font-size:13px;color:var(--text3);margin:16px 0;}
+.btn-google{width:100%;padding:14px;background:var(--white);color:var(--text);border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font);font-size:15px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.2s;}
+.btn-google:active{background:var(--bg);}
+.auth-panel{display:none;}
+.auth-panel.active{display:block;}
+
+/* ── MAIN APP ── */
+#app{background:var(--bg);}
+.app-header{position:sticky;top:0;z-index:50;background:var(--bg);padding:env(safe-area-inset-top,0) 20px 0;border-bottom:1px solid var(--border);}
+.app-header-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 0 12px;}
+.header-logo{font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--primary-dark);}
+.header-right{display:flex;align-items:center;gap:12px;}
+.header-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;cursor:pointer;}
+.header-notif{width:36px;height:36px;border-radius:50%;background:var(--white);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;position:relative;}
+.notif-badge{position:absolute;top:-2px;right:-2px;width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);display:none;}
+.notif-badge.show{display:block;}
+
+/* NAV */
+.app-nav{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom,0);z-index:50;box-shadow:0 -4px 20px rgba(0,0,0,0.05);}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px;background:none;border:none;color:var(--text3);font-family:var(--font);font-size:10px;font-weight:600;cursor:pointer;transition:color 0.2s;letter-spacing:0.2px;}
+.nav-btn.active{color:var(--primary-dark);}
+.nav-btn svg{width:22px;height:22px;stroke-width:1.8;}
+.nav-dot{width:4px;height:4px;border-radius:50%;background:var(--primary);margin-top:1px;opacity:0;transition:opacity 0.2s;}
+.nav-btn.active .nav-dot{opacity:1;}
+
+/* PAGES */
+.page{display:none;flex:1;overflow-y:auto;padding:20px 16px 100px;}
+.page.active{display:block;}
+
+/* ── HOME ── */
+.home-greeting{margin-bottom:20px;}
+.home-greeting h2{font-family:var(--font-display);font-size:26px;font-weight:600;color:var(--text);line-height:1.3;}
+.home-greeting p{font-size:14px;color:var(--text2);margin-top:4px;}
+.mood-card{background:var(--white);border-radius:var(--radius);padding:18px;margin-bottom:16px;border:1px solid var(--border);box-shadow:var(--shadow);}
+.mood-title{font-size:13px;font-weight:600;color:var(--text2);margin-bottom:12px;}
+.mood-options{display:flex;justify-content:space-between;}
+.mood-btn{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:none;cursor:pointer;padding:6px;border-radius:var(--radius-xs);transition:background 0.15s;}
+.mood-btn:active{background:var(--bg);}
+.mood-btn.selected{background:var(--primary-light);}
+.mood-emoji{font-size:28px;}
+.mood-lbl{font-size:10px;color:var(--text3);font-weight:500;}
+.frase-card{background:linear-gradient(135deg,var(--primary-light),var(--secondary-light));border-radius:var(--radius);padding:20px;margin-bottom:16px;border:1px solid rgba(184,169,232,0.2);}
+.frase-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--primary-dark);margin-bottom:8px;}
+.frase-text{font-family:var(--font-display);font-size:16px;color:var(--text);line-height:1.5;font-style:italic;}
+.frase-author{font-size:12px;color:var(--text2);margin-top:6px;}
+.section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text3);margin-bottom:12px;}
+.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.quick-card{background:var(--white);border-radius:var(--radius-sm);padding:16px;border:1px solid var(--border);cursor:pointer;transition:all 0.15s;box-shadow:var(--shadow);}
+.quick-card:active{transform:scale(0.97);}
+.quick-icon{font-size:24px;margin-bottom:8px;}
+.quick-label{font-size:13px;font-weight:600;color:var(--text);}
+.quick-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+.today-tasks{background:var(--white);border-radius:var(--radius);padding:18px;border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:16px;}
+.task-mini{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+.task-mini:last-child{border-bottom:none;}
+.task-mini-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;}
+.task-mini-check.done{background:var(--green);border-color:var(--green);}
+.task-mini-text{flex:1;font-size:14px;color:var(--text);}
+.task-mini-text.done{text-decoration:line-through;color:var(--text3);}
+.task-mini-time{font-size:12px;color:var(--text3);}
+
+/* ── AGENDA ── */
+.agenda-view-tabs{display:flex;background:var(--white);border-radius:var(--radius-sm);padding:4px;margin-bottom:20px;border:1px solid var(--border);}
+.view-tab{flex:1;padding:9px;border:none;background:none;border-radius:var(--radius-xs);font-family:var(--font);font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:all 0.2s;}
+.view-tab.active{background:var(--primary);color:white;font-weight:600;}
+.agenda-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.agenda-nav-btn{width:36px;height:36px;border-radius:50%;background:var(--white);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--text2);}
+.agenda-period{font-family:var(--font-display);font-size:18px;font-weight:600;color:var(--text);}
+.evento-card{background:var(--white);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:8px;border:1px solid var(--border);display:flex;gap:14px;align-items:flex-start;box-shadow:var(--shadow);}
+.evento-time{font-size:13px;font-weight:600;color:var(--text2);min-width:48px;}
+.evento-bar{width:3px;border-radius:3px;align-self:stretch;min-height:40px;flex-shrink:0;}
+.evento-info{flex:1;}
+.evento-title{font-size:14px;font-weight:600;color:var(--text);}
+.evento-meta{font-size:12px;color:var(--text3);margin-top:3px;}
+.evento-chip{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;margin-top:6px;}
+.btn-fab{position:fixed;bottom:80px;right:20px;width:54px;height:54px;border-radius:50%;background:var(--primary);border:none;color:white;font-size:24px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(184,169,232,0.5);cursor:pointer;z-index:40;transition:transform 0.2s;}
+.btn-fab:active{transform:scale(0.93);}
+.calendar-grid{background:var(--white);border-radius:var(--radius);padding:16px;border:1px solid var(--border);margin-bottom:16px;}
+.cal-header{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;margin-bottom:8px;}
+.cal-day-name{font-size:11px;font-weight:700;color:var(--text3);padding:4px;}
+.cal-days{display:grid;grid-template-columns:repeat(7,1fr);}
+.cal-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:50%;font-size:13px;cursor:pointer;transition:all 0.15s;position:relative;}
+.cal-day:active{background:var(--primary-light);}
+.cal-day.today{background:var(--primary);color:white;font-weight:700;}
+.cal-day.selected{background:var(--primary-light);color:var(--primary-dark);font-weight:600;}
+.cal-day.other-month{color:var(--text3);}
+.cal-day-dot{position:absolute;bottom:2px;width:4px;height:4px;border-radius:50%;background:var(--accent);}
+
+/* ── GRUPOS ── */
+.grupo-card{background:var(--white);border-radius:var(--radius);padding:18px 20px;margin-bottom:12px;border:1px solid var(--border);cursor:pointer;transition:all 0.15s;box-shadow:var(--shadow);display:flex;align-items:center;gap:16px;}
+.grupo-card:active{transform:scale(0.98);}
+.grupo-icon{width:52px;height:52px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:white;flex-shrink:0;font-family:var(--font-display);}
+.grupo-info{flex:1;}
+.grupo-nombre{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--text);}
+.grupo-colegio{font-size:13px;color:var(--text2);margin-top:2px;}
+.grupo-materia{font-size:11px;color:var(--text3);margin-top:2px;}
+.grupo-meta{display:flex;align-items:center;gap:6px;}
+.grupo-count{font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;color:white;}
+.grupo-header-banner{border-radius:var(--radius);padding:16px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px;}
+.grupo-header-icon{width:44px;height:44px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:white;font-family:var(--font-display);flex-shrink:0;}
+.grupo-header-nombre{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--text);}
+.grupo-header-sub{font-size:12px;color:var(--text2);margin-top:2px;}
+/* ── NOTAS ALUMNO ── */
+.nota-num-card{background:var(--white);border-radius:var(--radius-sm);padding:14px;border:1px solid var(--border);margin-bottom:8px;}
+.nota-num-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;}
+.nota-num-materia{font-size:13px;font-weight:600;color:var(--text);}
+.nota-num-fecha{font-size:11px;color:var(--text3);}
+.nota-num-valor{font-family:var(--font-display);font-size:28px;font-weight:700;}
+.nota-num-desc{font-size:12px;color:var(--text2);margin-top:4px;}
+.promedio-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700;}
+/* ── ALUMNOS ── */
+.search-bar{display:flex;align-items:center;gap:10px;background:var(--white);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:16px;}
+.search-bar input{flex:1;border:none;background:none;font-family:var(--font);font-size:15px;color:var(--text);outline:none;}
+.search-bar input::placeholder{color:var(--text3);}
+.alumno-card{background:var(--white);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);cursor:pointer;transition:all 0.15s;box-shadow:var(--shadow);}
+.alumno-card:active{transform:scale(0.98);}
+.alumno-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:white;flex-shrink:0;}
+.alumno-info{flex:1;}
+.alumno-name{font-size:15px;font-weight:600;color:var(--text);}
+.alumno-curso{font-size:12px;color:var(--text2);margin-top:2px;}
+.alumno-status{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;}
+.status-ok{background:var(--green-light);color:#3D8A5C;}
+.status-warn{background:var(--gold-light);color:#8A6B2E;}
+.status-alert{background:#FEF0EF;color:#C0392B;}
+
+/* DETALLE ALUMNO */
+.detail-header{background:linear-gradient(135deg,var(--primary-light),var(--secondary-light));padding:24px 20px;margin:-20px -16px 20px;text-align:center;}
+.detail-avatar{width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:white;margin:0 auto 12px;}
+.detail-name{font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--text);}
+.detail-curso{font-size:14px;color:var(--text2);margin-top:4px;}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.info-box{background:var(--white);border-radius:var(--radius-sm);padding:14px;border:1px solid var(--border);text-align:center;}
+.info-box-num{font-family:var(--font-display);font-size:24px;font-weight:700;}
+.info-box-lbl{font-size:11px;color:var(--text3);margin-top:2px;font-weight:500;}
+.obs-item{background:var(--white);border-radius:var(--radius-sm);padding:14px;margin-bottom:8px;border:1px solid var(--border);}
+.obs-date{font-size:11px;color:var(--text3);margin-bottom:4px;}
+.obs-text{font-size:14px;color:var(--text);line-height:1.5;}
+
+/* ── TAREAS ── */
+.priority-filter{display:flex;gap:6px;margin-bottom:16px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;}
+.priority-filter::-webkit-scrollbar{display:none;}
+.filter-pill{flex-shrink:0;padding:6px 16px;border-radius:20px;border:1px solid var(--border);background:var(--white);font-family:var(--font);font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;transition:all 0.15s;}
+.filter-pill.active{background:var(--primary);border-color:var(--primary);color:white;}
+.tarea-card{background:var(--white);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:8px;display:flex;gap:12px;border:1px solid var(--border);box-shadow:var(--shadow);}
+.tarea-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all 0.2s;}
+.tarea-check.done{background:var(--green);border-color:var(--green);}
+.tarea-body{flex:1;}
+.tarea-title{font-size:14px;font-weight:600;color:var(--text);}
+.tarea-title.done{text-decoration:line-through;color:var(--text3);}
+.tarea-meta{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;}
+.tarea-chip{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;}
+.chip-alta{background:#FEF0EF;color:#C0392B;}
+.chip-media{background:var(--gold-light);color:#8A6B2E;}
+.chip-baja{background:var(--green-light);color:#3D8A5C;}
+.chip-cat{background:var(--primary-light);color:var(--primary-dark);}
+
+/* ── NOTAS ── */
+.nota-card{background:var(--white);border-radius:var(--radius-sm);padding:16px;margin-bottom:8px;border:1px solid var(--border);cursor:pointer;transition:all 0.15s;box-shadow:var(--shadow);}
+.nota-card:active{transform:scale(0.98);}
+.nota-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.nota-preview{font-size:13px;color:var(--text2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.nota-date{font-size:11px;color:var(--text3);margin-top:8px;}
+
+/* ── HABITOS ── */
+.habito-card{background:var(--white);border-radius:var(--radius-sm);padding:16px;margin-bottom:10px;border:1px solid var(--border);box-shadow:var(--shadow);}
+.habito-header{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.habito-icon{font-size:24px;}
+.habito-name{font-size:14px;font-weight:600;color:var(--text);flex:1;}
+.habito-racha{font-size:12px;color:var(--primary-dark);font-weight:700;}
+.habito-week{display:flex;gap:4px;}
+.habito-day{flex:1;aspect-ratio:1;border-radius:6px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text3);font-weight:600;cursor:pointer;transition:all 0.15s;}
+.habito-day.done{background:var(--primary);color:white;}
+.habito-day.today-marker{border:2px solid var(--primary-dark);}
+
+/* ── BIENESTAR ── */
+.bienestar-card{background:linear-gradient(135deg,var(--secondary-light),var(--primary-light));border-radius:var(--radius);padding:20px;margin-bottom:16px;border:1px solid rgba(242,196,206,0.3);}
+.bienestar-title{font-family:var(--font-display);font-size:18px;font-weight:600;color:var(--text);margin-bottom:12px;}
+.mood-week{display:flex;justify-content:space-between;gap:6px;}
+.mood-week-day{flex:1;background:var(--white);border-radius:var(--radius-xs);padding:8px 4px;text-align:center;border:1px solid var(--border);}
+.mood-week-emoji{font-size:18px;}
+.mood-week-lbl{font-size:9px;color:var(--text3);margin-top:2px;font-weight:600;}
+.tip-card{background:var(--white);border-radius:var(--radius-sm);padding:16px;margin-bottom:8px;border:1px solid var(--border);display:flex;gap:12px;align-items:flex-start;}
+.tip-icon{font-size:22px;flex-shrink:0;}
+.tip-text{font-size:13px;color:var(--text);line-height:1.6;}
+
+/* ── GASTOS ── */
+.gastos-resumen{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.gasto-stat{background:var(--white);border-radius:var(--radius-sm);padding:16px;border:1px solid var(--border);text-align:center;}
+.gasto-stat-num{font-family:var(--font-display);font-size:24px;font-weight:700;}
+.gasto-stat-lbl{font-size:11px;color:var(--text3);margin-top:2px;}
+.gasto-item{background:var(--white);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);}
+.gasto-cat-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.gasto-info{flex:1;}
+.gasto-desc{font-size:14px;font-weight:500;color:var(--text);}
+.gasto-cat{font-size:12px;color:var(--text3);}
+.gasto-monto{font-size:15px;font-weight:700;}
+.gasto-ingreso{color:var(--green);}
+.gasto-egreso{color:var(--accent);}
+
+/* ── PERFIL ── */
+.perfil-hero{background:linear-gradient(160deg,var(--primary-light),var(--secondary-light));padding:40px 20px 30px;text-align:center;margin:-20px -16px 20px;}
+.perfil-avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:white;margin:0 auto 14px;cursor:pointer;}
+.perfil-name{font-family:var(--font-display);font-size:24px;font-weight:700;color:var(--text);}
+.perfil-role{font-size:14px;color:var(--text2);margin-top:4px;}
+.perfil-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.perfil-stat{background:var(--white);border-radius:var(--radius-sm);padding:14px;text-align:center;border:1px solid var(--border);}
+.perfil-stat-num{font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--primary-dark);}
+.perfil-stat-lbl{font-size:10px;color:var(--text3);margin-top:2px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+.cfg-item{background:var(--white);border-radius:var(--radius-sm);padding:16px;margin-bottom:8px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);cursor:pointer;transition:all 0.15s;}
+.cfg-item:active{background:var(--bg);}
+.cfg-item-icon{font-size:20px;width:36px;text-align:center;}
+.cfg-item-label{flex:1;font-size:14px;font-weight:500;color:var(--text);}
+.cfg-item-arrow{font-size:16px;color:var(--text3);}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:100;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity 0.25s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--white);border-radius:var(--radius) var(--radius) 0 0;width:100%;max-height:90dvh;overflow-y:auto;transform:translateY(100%);transition:transform 0.3s cubic-bezier(.4,0,.2,1);padding:20px;}
+.modal-overlay.open .modal{transform:translateY(0);}
+.modal-handle{width:40px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 20px;}
+.modal-title{font-family:var(--font-display);font-size:20px;font-weight:600;color:var(--text);margin-bottom:20px;}
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text2);margin-bottom:8px;}
+.form-group input,.form-group textarea,.form-group select{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font);font-size:14px;color:var(--text);background:var(--bg);outline:none;transition:border-color 0.2s;}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--primary);}
+.form-group textarea{min-height:90px;resize:vertical;line-height:1.6;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.color-picker{display:flex;gap:8px;flex-wrap:wrap;}
+.color-opt{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:all 0.15s;}
+.color-opt.selected{border-color:var(--text);}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:white;padding:12px 20px;border-radius:50px;font-size:13px;font-weight:600;opacity:0;transition:all 0.25s;z-index:200;white-space:nowrap;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── BACK BTN ── */
+.back-btn{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--primary-dark);background:none;border:none;cursor:pointer;margin-bottom:16px;padding:4px 0;}
+.back-btn svg{width:18px;height:18px;}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:50px 20px;color:var(--text3);}
+.empty-icon{font-size:48px;display:block;margin-bottom:14px;}
+.empty h3{font-size:16px;font-weight:600;color:var(--text2);margin-bottom:6px;}
+.empty p{font-size:13px;line-height:1.7;}
+
+/* ── TOGGLE ── */
+.toggle{position:relative;width:44px;height:26px;}
+.toggle input{opacity:0;width:0;height:0;}
+.tog-track{position:absolute;inset:0;background:var(--border);border-radius:26px;cursor:pointer;transition:background 0.2s;}
+.tog-track::before{content:'';position:absolute;width:18px;height:18px;left:4px;top:4px;background:white;border-radius:50%;transition:transform 0.2s;box-shadow:0 1px 4px rgba(0,0,0,0.2);}
+.toggle input:checked + .tog-track{background:var(--primary);}
+.toggle input:checked + .tog-track::before{transform:translateX(18px);}
+
+/* ── THEMES ── */
+body.theme-lavender{--primary:#9B8DD4;--primary-dark:#7B6EB8;--primary-light:#E8E2F7;}
+body.theme-rose{--primary:#D4849A;--primary-dark:#B86078;--primary-light:#F7E2E8;}
+body.theme-sage{--primary:#7DC4A0;--primary-dark:#5AA882;--primary-light:#E2F4EC;}
+body.theme-peach{--primary:#E8856A;--primary-dark:#C96A50;--primary-light:#F9E6E0;}
+
+@media (prefers-color-scheme: dark) {
+  /* Light mode forced for elegant aesthetic */
+}
+</style>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<!-- ACCESS CODE -->
+<div class="screen" id="access">
+  <div class="access-box">
+    <div class="access-logo">Lumia ✨</div>
+    <div class="access-tagline">Ingresá tu código de acceso</div>
+    <input class="access-input" type="text" id="access-input" maxlength="10" placeholder="XXXXXXXX" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter')verifyCode()" autocomplete="off" autocorrect="off" spellcheck="false"/>
+    <div class="access-error" id="access-error"></div>
+    <button class="access-btn" onclick="verifyCode()">Ingresar a Lumia →</button>
+    <div class="access-hint">
+      ¿No tenés código? Escribile a la creadora de Lumia para obtener el tuyo.<br><br>
+      <a href="https://wa.me/5493513000000" target="_blank">📲 Contactar por WhatsApp</a>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="screen" id="admin">
+  <div class="admin-top">
+    <div class="admin-top-inner">
+      <div>
+        <div class="admin-title">Panel Admin</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">Lumia — Gestión de accesos</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span class="admin-badge">ADMIN</span>
+        <button class="btn-admin-exit" onclick="exitAdmin()">Salir</button>
+      </div>
+    </div>
+  </div>
+  <div class="admin-content">
+    <div class="admin-stat-grid" id="admin-stats"></div>
+    <div class="gen-box">
+      <div class="gen-title">🎟️ Generar nuevos códigos</div>
+      <div class="gen-row">
+        <select class="gen-select" id="gen-cantidad">
+          <option value="1">1 código</option>
+          <option value="3">3 códigos</option>
+          <option value="5" selected>5 códigos</option>
+          <option value="10">10 códigos</option>
+          <option value="20">20 códigos</option>
+        </select>
+        <select class="gen-select" id="gen-vencimiento">
+          <option value="7">Vence en 7 días</option>
+          <option value="30" selected>Vence en 30 días</option>
+          <option value="90">Vence en 90 días</option>
+          <option value="365">Vence en 1 año</option>
+          <option value="0">Sin vencimiento</option>
+        </select>
+      </div>
+      <button class="btn-gen" onclick="generarCodigos()">✨ Generar códigos</button>
+    </div>
+    <div class="admin-sec">Todos los códigos</div>
+    <div id="admin-codes-list"></div>
+  </div>
+</div>
+
+<!-- SPLASH -->
+<div class="screen active" id="splash">
+  <div class="splash-logo">Lumia</div>
+  <div class="splash-tagline">Tu agenda docente personal</div>
+  <div class="splash-dot"></div>
+</div>
+
+<!-- ONBOARDING -->
+<div class="screen" id="onboarding">
+  <div class="ob-slides" id="ob-slides">
+    <div class="ob-slide">
+      <div class="ob-emoji">✨</div>
+      <h2 class="ob-title">Todo tu mundo docente en un lugar</h2>
+      <p class="ob-desc">Agenda, alumnos, tareas, notas y bienestar. Todo organizado para vos.</p>
+    </div>
+    <div class="ob-slide">
+      <div class="ob-emoji">👩‍🏫</div>
+      <h2 class="ob-title">Seguí a cada alumna y alumno</h2>
+      <p class="ob-desc">Registrá asistencia, notas y observaciones de cada estudiante con facilidad.</p>
+    </div>
+    <div class="ob-slide">
+      <div class="ob-emoji">🌸</div>
+      <h2 class="ob-title">Cuidá tu bienestar también</h2>
+      <p class="ob-desc">Porque una docente plena enseña mejor. Recordatorios, hábitos y frases para vos.</p>
+    </div>
+  </div>
+  <div class="ob-dots" id="ob-dots">
+    <div class="ob-dot active"></div>
+    <div class="ob-dot"></div>
+    <div class="ob-dot"></div>
+  </div>
+  <div class="ob-footer">
+    <button class="btn-skip" onclick="goToAuth()">Saltar</button>
+    <button class="btn-next" id="ob-btn" onclick="nextSlide()">Siguiente →</button>
+  </div>
+</div>
+
+<!-- AUTH -->
+<div class="screen" id="auth">
+  <div class="auth-hero">
+    <div class="auth-logo">Lumia ✨</div>
+    <div class="auth-sub">Agenda profesional para docentes</div>
+  </div>
+  <div class="auth-tabs">
+    <button class="auth-tab active" onclick="switchAuth('login')">Iniciar sesión</button>
+    <button class="auth-tab" onclick="switchAuth('register')">Registrarme</button>
+  </div>
+  <div class="auth-form">
+    <!-- LOGIN -->
+    <div class="auth-panel active" id="panel-login">
+      <div class="form-group"><label>Email</label><input type="email" id="login-email" placeholder="tu@email.com"/></div>
+      <div class="form-group"><label>Contraseña</label><input type="password" id="login-pass" placeholder="••••••••"/></div>
+      <button class="btn-primary" onclick="doLogin()">Ingresar a Lumia</button>
+      <div class="auth-divider">— o entrá con —</div>
+      <button class="btn-google" onclick="doGoogleLogin()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continuar con Google
+      </button>
+    </div>
+    <!-- REGISTER -->
+    <div class="auth-panel" id="panel-register">
+      <div class="form-group"><label>Nombre</label><input type="text" id="reg-nombre" placeholder="Tu nombre"/></div>
+      <div class="form-group"><label>Email</label><input type="email" id="reg-email" placeholder="tu@email.com"/></div>
+      <div class="form-group"><label>Contraseña</label><input type="password" id="reg-pass" placeholder="Mínimo 6 caracteres"/></div>
+      <div class="form-group"><label>Materia / Nivel</label><input type="text" id="reg-materia" placeholder="Ej: Matemática, Primaria..."/></div>
+      <button class="btn-primary" onclick="doRegister()">Crear mi cuenta Lumia</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP PRINCIPAL -->
+<div class="screen" id="app">
+  <div class="app-header">
+    <div class="app-header-inner">
+      <span class="header-logo">Lumia</span>
+      <div class="header-right">
+        <div class="header-notif" onclick="showToast('Sin notificaciones nuevas 🌸')">
+          🔔<div class="notif-badge" id="notif-badge"></div>
+        </div>
+        <div class="header-avatar" id="header-avatar" onclick="goPage('perfil')">V</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGES -->
+  <div class="page active" id="page-home">
+    <div class="home-greeting">
+      <h2 id="greeting-text">Buenos días ☀️</h2>
+      <p id="greeting-date">cargando...</p>
+    </div>
+    <!-- MOOD -->
+    <div class="mood-card">
+      <div class="mood-title">¿Cómo te sentís hoy?</div>
+      <div class="mood-options">
+        <button class="mood-btn" onclick="selectMood(0,this)"><span class="mood-emoji">😔</span><span class="mood-lbl">Mal</span></button>
+        <button class="mood-btn" onclick="selectMood(1,this)"><span class="mood-emoji">😕</span><span class="mood-lbl">Regular</span></button>
+        <button class="mood-btn" onclick="selectMood(2,this)"><span class="mood-emoji">😊</span><span class="mood-lbl">Bien</span></button>
+        <button class="mood-btn" onclick="selectMood(3,this)"><span class="mood-emoji">😄</span><span class="mood-lbl">Muy bien</span></button>
+        <button class="mood-btn" onclick="selectMood(4,this)"><span class="mood-emoji">🌟</span><span class="mood-lbl">Genial</span></button>
+      </div>
+    </div>
+    <!-- FRASE -->
+    <div class="frase-card">
+      <div class="frase-label">✨ Frase del día</div>
+      <div class="frase-text" id="frase-text">"La educación es el arma más poderosa para cambiar el mundo."</div>
+      <div class="frase-author" id="frase-author" style="display:none;"></div>
+    </div>
+    <!-- ACCESOS RÁPIDOS -->
+    <div class="section-title">Accesos rápidos</div>
+    <div class="quick-grid">
+      <div class="quick-card" onclick="goPage('agenda')"><div class="quick-icon">📅</div><div class="quick-label">Agenda</div><div class="quick-sub" id="q-agenda-sub">Ver eventos</div></div>
+      <div class="quick-card" onclick="goPage('alumnos')"><div class="quick-icon">👩‍🎓</div><div class="quick-label">Alumnos</div><div class="quick-sub" id="q-alumnos-sub">Ver lista</div></div>
+      <div class="quick-card" onclick="goPage('tareas')"><div class="quick-icon">✅</div><div class="quick-label">Tareas</div><div class="quick-sub" id="q-tareas-sub">Ver pendientes</div></div>
+      <div class="quick-card" onclick="goPage('notas')"><div class="quick-icon">📝</div><div class="quick-label">Notas</div><div class="quick-sub" id="q-notas-sub">Ver notas</div></div>
+    </div>
+    <!-- TAREAS DE HOY -->
+    <div class="section-title">Tareas de hoy</div>
+    <div class="today-tasks" id="today-tasks-container"></div>
+  </div>
+
+  <!-- AGENDA -->
+  <div class="page" id="page-agenda">
+    <div class="agenda-view-tabs">
+      <button class="view-tab active" onclick="setAgendaView('dia',this)">Día</button>
+      <button class="view-tab" onclick="setAgendaView('semana',this)">Semana</button>
+      <button class="view-tab" onclick="setAgendaView('mes',this)">Mes</button>
+    </div>
+    <div id="agenda-content"></div>
+    <button class="btn-fab" onclick="openModal('modal-evento')">+</button>
+  </div>
+
+  <!-- ALUMNOS -->
+  <div class="page" id="page-alumnos">
+    <div id="alumnos-vista-grupos">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <span class="section-title" style="margin-bottom:0;">Mis cursos</span>
+        <button onclick="openModal('modal-grupo')" style="background:var(--primary);color:white;border:none;border-radius:var(--radius-xs);padding:7px 14px;font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;">+ Nuevo curso</button>
+      </div>
+      <div id="grupos-list"></div>
+    </div>
+    <div id="alumnos-vista-lista" style="display:none;">
+      <button class="back-btn" onclick="volverGrupos()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>Mis cursos</button>
+      <div id="grupo-header-info"></div>
+      <div class="search-bar" style="margin-bottom:12px;">
+        <span>🔍</span>
+        <input type="text" placeholder="Buscar alumno..." id="search-alumno" oninput="filtrarAlumnos()"/>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <span class="section-title" style="margin-bottom:0;" id="lista-titulo">Alumnos</span>
+        <button onclick="openModal('modal-alumno')" style="background:var(--primary);color:white;border:none;border-radius:var(--radius-xs);padding:7px 14px;font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;">+ Alumno</button>
+      </div>
+      <div id="alumnos-list"></div>
+    </div>
+    <div id="alumno-detalle" style="display:none;"></div>
+  </div>
+
+  <!-- TAREAS -->
+  <div class="page" id="page-tareas">
+    <div class="priority-filter">
+      <button class="filter-pill active" onclick="setTareaFilter('todas',this)">Todas</button>
+      <button class="filter-pill" onclick="setTareaFilter('pendientes',this)">Pendientes</button>
+      <button class="filter-pill" onclick="setTareaFilter('alta',this)">🔴 Alta</button>
+      <button class="filter-pill" onclick="setTareaFilter('docente',this)">📚 Docente</button>
+      <button class="filter-pill" onclick="setTareaFilter('personal',this)">🌸 Personal</button>
+    </div>
+    <div id="tareas-list"></div>
+    <button class="btn-fab" onclick="openModal('modal-tarea')">+</button>
+  </div>
+
+  <!-- NOTAS -->
+  <div class="page" id="page-notas">
+    <div id="notas-content">
+      <div id="notas-list"></div>
+      <button class="btn-fab" onclick="openModal('modal-nota')">+</button>
+    </div>
+    <div id="nota-detalle" style="display:none;"></div>
+  </div>
+
+  <!-- MÁS -->
+  <div class="page" id="page-mas">
+    <div class="section-title">Herramientas</div>
+    <div class="quick-grid" style="margin-bottom:20px;">
+      <div class="quick-card" onclick="goSubPage('habitos')"><div class="quick-icon">🌱</div><div class="quick-label">Hábitos</div><div class="quick-sub">Rachas y seguimiento</div></div>
+      <div class="quick-card" onclick="goSubPage('bienestar')"><div class="quick-icon">💆‍♀️</div><div class="quick-label">Bienestar</div><div class="quick-sub">Estado de ánimo</div></div>
+      <div class="quick-card" onclick="goSubPage('gastos')"><div class="quick-icon">💰</div><div class="quick-label">Gastos</div><div class="quick-sub">Control financiero</div></div>
+      <div class="quick-card" onclick="goSubPage('clases')"><div class="quick-icon">📖</div><div class="quick-label">Registro</div><div class="quick-sub">Libro de clases</div></div>
+    </div>
+    <div class="section-title">Mi cuenta</div>
+    <div class="cfg-item" onclick="goPage('perfil')"><span class="cfg-item-icon">👤</span><span class="cfg-item-label">Mi perfil</span><span class="cfg-item-arrow">›</span></div>
+    <div class="cfg-item" onclick="openModal('modal-notif')"><span class="cfg-item-icon">🔔</span><span class="cfg-item-label">Notificaciones</span><span class="cfg-item-arrow">›</span></div>
+    <div class="cfg-item" onclick="openModal('modal-tema')"><span class="cfg-item-icon">🎨</span><span class="cfg-item-label">Personalizar</span><span class="cfg-item-arrow">›</span></div>
+    <div class="cfg-item" onclick="doLogout()" style="color:var(--accent);"><span class="cfg-item-icon">🚪</span><span class="cfg-item-label" style="color:var(--accent);">Cerrar sesión</span><span class="cfg-item-arrow">›</span></div>
+  </div>
+
+  <!-- PERFIL -->
+  <div class="page" id="page-perfil">
+    <button class="back-btn" onclick="goPage('mas')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      Volver
+    </button>
+    <div class="perfil-hero">
+      <div class="perfil-avatar" id="perfil-avatar">V</div>
+      <div class="perfil-name" id="perfil-name">Verónica</div>
+      <div class="perfil-role" id="perfil-role">Docente</div>
+    </div>
+    <div class="perfil-stats" id="perfil-stats"></div>
+    <div class="section-title">Configuración</div>
+    <div class="cfg-item" onclick="openModal('modal-edit-perfil')"><span class="cfg-item-icon">✏️</span><span class="cfg-item-label">Editar perfil</span><span class="cfg-item-arrow">›</span></div>
+    <div class="cfg-item" onclick="openModal('modal-tema')"><span class="cfg-item-icon">🎨</span><span class="cfg-item-label">Tema de colores</span><span class="cfg-item-arrow">›</span></div>
+    <div class="cfg-item" onclick="openModal('modal-notif')"><span class="cfg-item-icon">🔔</span><span class="cfg-item-label">Notificaciones</span><span class="cfg-item-arrow">›</span></div>
+    <div class="cfg-item" onclick="exportData()"><span class="cfg-item-icon">📤</span><span class="cfg-item-label">Exportar mis datos</span><span class="cfg-item-arrow">›</span></div>
+  </div>
+
+  <!-- SUB PÁGINAS -->
+  <div class="page" id="page-habitos">
+    <button class="back-btn" onclick="goPage('mas')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>Volver</button>
+    <div class="section-title">Mis hábitos</div>
+    <div id="habitos-list"></div>
+    <button class="btn-fab" onclick="openModal('modal-habito')">+</button>
+  </div>
+
+  <div class="page" id="page-bienestar">
+    <button class="back-btn" onclick="goPage('mas')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>Volver</button>
+    <div class="bienestar-card">
+      <div class="bienestar-title">Tu semana emocional 🌸</div>
+      <div class="mood-week" id="mood-week"></div>
+    </div>
+    <div class="section-title">Tips de bienestar docente</div>
+    <div id="tips-list"></div>
+  </div>
+
+  <div class="page" id="page-gastos">
+    <button class="back-btn" onclick="goPage('mas')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>Volver</button>
+    <div class="gastos-resumen" id="gastos-resumen"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <span class="section-title" style="margin-bottom:0;">Movimientos</span>
+      <button onclick="openModal('modal-gasto')" style="background:var(--primary);color:white;border:none;border-radius:var(--radius-xs);padding:7px 14px;font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;">+ Agregar</button>
+    </div>
+    <div id="gastos-list"></div>
+  </div>
+
+  <div class="page" id="page-clases">
+    <button class="back-btn" onclick="goPage('mas')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>Volver</button>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <span class="section-title" style="margin-bottom:0;">Registro de clases</span>
+      <button onclick="openModal('modal-clase')" style="background:var(--primary);color:white;border:none;border-radius:var(--radius-xs);padding:7px 14px;font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;">+ Nueva</button>
+    </div>
+    <div id="clases-list"></div>
+  </div>
+
+  <!-- NAV -->
+  <nav class="app-nav">
+    <button class="nav-btn active" onclick="goPage('home')" id="nav-home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Inicio<div class="nav-dot"></div>
+    </button>
+    <button class="nav-btn" onclick="goPage('agenda')" id="nav-agenda">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Agenda<div class="nav-dot"></div>
+    </button>
+    <button class="nav-btn" onclick="goPage('alumnos')" id="nav-alumnos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Alumnos<div class="nav-dot"></div>
+    </button>
+    <button class="nav-btn" onclick="goPage('tareas')" id="nav-tareas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Tareas<div class="nav-dot"></div>
+    </button>
+    <button class="nav-btn" onclick="goPage('mas')" id="nav-mas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+      Más<div class="nav-dot"></div>
+    </button>
+  </nav>
+</div>
+
+<!-- MODALES -->
+<div class="modal-overlay" id="modal-evento" onclick="closeModalOutside(event,'modal-evento')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Nuevo evento</div>
+    <div class="form-group"><label>Título</label><input type="text" id="ev-titulo" placeholder="Ej: Clase 3° A"/></div>
+    <div class="form-row">
+      <div class="form-group"><label>Fecha</label><input type="date" id="ev-fecha"/></div>
+      <div class="form-group"><label>Hora</label><input type="time" id="ev-hora"/></div>
+    </div>
+    <div class="form-group"><label>Lugar</label><input type="text" id="ev-lugar" placeholder="Ej: Aula 5"/></div>
+    <div class="form-group"><label>Color</label>
+      <div class="color-picker">
+        <div class="color-opt selected" style="background:#B8A9E8;" onclick="selectColor(this,'#B8A9E8')"></div>
+        <div class="color-opt" style="background:#F2C4CE;" onclick="selectColor(this,'#F2C4CE')"></div>
+        <div class="color-opt" style="background:#E8856A;" onclick="selectColor(this,'#E8856A')"></div>
+        <div class="color-opt" style="background:#7DC4A0;" onclick="selectColor(this,'#7DC4A0')"></div>
+        <div class="color-opt" style="background:#D4AF7A;" onclick="selectColor(this,'#D4AF7A')"></div>
+      </div>
+    </div>
+    <div class="form-group"><label>Notas</label><textarea id="ev-notas" placeholder="Detalles adicionales..."></textarea></div>
+    <button class="btn-primary" onclick="guardarEvento()">Guardar evento</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-tarea" onclick="closeModalOutside(event,'modal-tarea')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Nueva tarea</div>
+    <div class="form-group"><label>Descripción</label><input type="text" id="ta-titulo" placeholder="¿Qué tenés que hacer?"/></div>
+    <div class="form-row">
+      <div class="form-group"><label>Fecha límite</label><input type="date" id="ta-fecha"/></div>
+      <div class="form-group"><label>Prioridad</label>
+        <select id="ta-prioridad">
+          <option value="alta">🔴 Alta</option>
+          <option value="media" selected>🟡 Media</option>
+          <option value="baja">🟢 Baja</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label>Categoría</label>
+      <select id="ta-cat">
+        <option value="docente">📚 Docente</option>
+        <option value="personal">🌸 Personal</option>
+        <option value="admin">📋 Administrativa</option>
+      </select>
+    </div>
+    <button class="btn-primary" onclick="guardarTarea()">Guardar tarea</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-nota" onclick="closeModalOutside(event,'modal-nota')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Nueva nota</div>
+    <div class="form-group"><label>Título</label><input type="text" id="no-titulo" placeholder="Título de la nota"/></div>
+    <div class="form-group"><label>Contenido</label><textarea id="no-contenido" placeholder="Escribí tu nota acá..." style="min-height:140px;"></textarea></div>
+    <button class="btn-primary" onclick="guardarNota()">Guardar nota</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-grupo" onclick="closeModalOutside(event,'modal-grupo')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Nuevo curso</div>
+    <div class="form-group"><label>Grado / Curso</label><input type="text" id="gr-curso" placeholder="Ej: 3° A, 2° B..."/></div>
+    <div class="form-group"><label>Colegio / Institución</label><input type="text" id="gr-colegio" placeholder="Ej: Escuela N°12 San Martín"/></div>
+    <div class="form-group"><label>Materia (opcional)</label><input type="text" id="gr-materia" placeholder="Ej: Matemática, Lengua..."/></div>
+    <div class="form-group"><label>Color del grupo</label>
+      <div class="color-picker" id="grupo-color-picker">
+        <div class="color-opt selected" style="background:#B8A9E8;" onclick="selectGrupoColor(this,'#B8A9E8')"></div>
+        <div class="color-opt" style="background:#F2C4CE;" onclick="selectGrupoColor(this,'#F2C4CE')"></div>
+        <div class="color-opt" style="background:#7DC4A0;" onclick="selectGrupoColor(this,'#7DC4A0')"></div>
+        <div class="color-opt" style="background:#E8856A;" onclick="selectGrupoColor(this,'#E8856A')"></div>
+        <div class="color-opt" style="background:#D4AF7A;" onclick="selectGrupoColor(this,'#D4AF7A')"></div>
+        <div class="color-opt" style="background:#9B8DD4;" onclick="selectGrupoColor(this,'#9B8DD4')"></div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="guardarGrupo()">Crear curso</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-alumno" onclick="closeModalOutside(event,'modal-alumno')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Agregar alumno/a</div>
+    <div class="form-group"><label>Nombre completo</label><input type="text" id="al-nombre" placeholder="Nombre y apellido"/></div>
+    <div class="form-group"><label>Estado</label>
+      <select id="al-estado">
+        <option value="ok">✅ Al día</option>
+        <option value="warn">⚠️ Atención</option>
+        <option value="alert">🚨 Urgente</option>
+        <option value="alert"> Ausente</option>
+        <option value="alert"> Presente</option>
+        <option value="alert"> No asiste</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Observación inicial (opcional)</label><textarea id="al-obs" placeholder="Notas sobre el/la alumno/a..."></textarea></div>
+    <button class="btn-primary" onclick="guardarAlumno()">Agregar alumno/a</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-habito" onclick="closeModalOutside(event,'modal-habito')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Nuevo hábito</div>
+    <div class="form-group"><label>Nombre del hábito</label><input type="text" id="ha-nombre" placeholder="Ej: Tomar agua"/></div>
+    <div class="form-group"><label>Ícono</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;" id="habito-icons">
+        <span style="font-size:24px;cursor:pointer;padding:6px;border-radius:8px;border:2px solid var(--primary);" onclick="selectHabitoIcon(this,'💧')">💧</span>
+        <span style="font-size:24px;cursor:pointer;padding:6px;border-radius:8px;border:2px solid transparent;" onclick="selectHabitoIcon(this,'🚶')">🚶</span>
+        <span style="font-size:24px;cursor:pointer;padding:6px;border-radius:8px;border:2px solid transparent;" onclick="selectHabitoIcon(this,'📚')">📚</span>
+        <span style="font-size:24px;cursor:pointer;padding:6px;border-radius:8px;border:2px solid transparent;" onclick="selectHabitoIcon(this,'🧘')">🧘</span>
+        <span style="font-size:24px;cursor:pointer;padding:6px;border-radius:8px;border:2px solid transparent;" onclick="selectHabitoIcon(this,'😴')">😴</span>
+        <span style="font-size:24px;cursor:pointer;padding:6px;border-radius:8px;border:2px solid transparent;" onclick="selectHabitoIcon(this,'🍎')">🍎</span>
+        <span style="font-size:24px;cursor:pointer;padding:6px;border-radius:8px;border:2px solid transparent;" onclick="selectHabitoIcon(this,'✍️')">✍️</span>
+        <span style="font-size:24px;cursor:pointer;padding:6px;border-radius:8px;border:2px solid transparent;" onclick="selectHabitoIcon(this,'🌿')">🌿</span>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="guardarHabito()">Crear hábito</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-gasto" onclick="closeModalOutside(event,'modal-gasto')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Registrar movimiento</div>
+    <div class="form-group"><label>Tipo</label>
+      <select id="ga-tipo">
+        <option value="egreso">💸 Egreso / Gasto</option>
+        <option value="ingreso">💰 Ingreso / Cobro</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Descripción</label><input type="text" id="ga-desc" placeholder="Ej: Fotocopias, cobro de hora..."/></div>
+    <div class="form-row">
+      <div class="form-group"><label>Monto ($)</label><input type="number" id="ga-monto" placeholder="0.00"/></div>
+      <div class="form-group"><label>Categoría</label>
+        <select id="ga-cat">
+          <option value="materiales">📦 Materiales</option>
+          <option value="transporte">🚌 Transporte</option>
+          <option value="alimentacion">🍽️ Alimentación</option>
+          <option value="sueldo">💼 Sueldo</option>
+          <option value="extra">⭐ Extra</option>
+          <option value="otro">📋 Otro</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="guardarGasto()">Guardar movimiento</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-clase" onclick="closeModalOutside(event,'modal-clase')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Registrar clase</div>
+    <div class="form-row">
+      <div class="form-group"><label>Fecha</label><input type="date" id="cl-fecha"/></div>
+      <div class="form-group"><label>Curso</label><input type="text" id="cl-curso" placeholder="Ej: 3° A"/></div>
+    </div>
+    <div class="form-group"><label>Tema dado</label><input type="text" id="cl-tema" placeholder="Ej: Fracciones"/></div>
+    <div class="form-group"><label>Actividades realizadas</label><textarea id="cl-actividades" placeholder="¿Qué hicieron en clase?"></textarea></div>
+    <div class="form-group"><label>Tarea asignada</label><input type="text" id="cl-tarea" placeholder="Tarea para el hogar (opcional)"/></div>
+    <div class="form-group"><label>Observaciones</label><textarea id="cl-obs" placeholder="Comportamiento, asistencia, etc." style="min-height:60px;"></textarea></div>
+    <button class="btn-primary" onclick="guardarClase()">Registrar clase</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-tema" onclick="closeModalOutside(event,'modal-tema')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Personalizar Lumia</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:16px;">Elegí el tema de colores de tu app</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
+      <div onclick="setTheme('')" style="background:linear-gradient(135deg,#EDE8F9,#FDF0F3);border-radius:var(--radius-sm);padding:16px;text-align:center;cursor:pointer;border:2px solid var(--primary);font-size:13px;font-weight:600;color:#9B8DD4;">🌸 Lavanda<br><span style="font-size:11px;font-weight:400;color:var(--text2);">Original</span></div>
+      <div onclick="setTheme('theme-rose')" style="background:linear-gradient(135deg,#F7E2E8,#FDF0F3);border-radius:var(--radius-sm);padding:16px;text-align:center;cursor:pointer;border:2px solid var(--border);font-size:13px;font-weight:600;color:#B86078;">🌹 Rosa<br><span style="font-size:11px;font-weight:400;color:var(--text2);">Romántico</span></div>
+      <div onclick="setTheme('theme-sage')" style="background:linear-gradient(135deg,#E2F4EC,#EDF7F2);border-radius:var(--radius-sm);padding:16px;text-align:center;cursor:pointer;border:2px solid var(--border);font-size:13px;font-weight:600;color:#5AA882;">🌿 Sage<br><span style="font-size:11px;font-weight:400;color:var(--text2);">Natural</span></div>
+      <div onclick="setTheme('theme-peach')" style="background:linear-gradient(135deg,#F9E6E0,#FBF0EC);border-radius:var(--radius-sm);padding:16px;text-align:center;cursor:pointer;border:2px solid var(--border);font-size:13px;font-weight:600;color:#C96A50;">🍑 Durazno<br><span style="font-size:11px;font-weight:400;color:var(--text2);">Cálido</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-notif" onclick="closeModalOutside(event,'modal-notif')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Notificaciones</div>
+    <div id="notif-status-text" style="font-size:13px;color:var(--text2);margin-bottom:16px;line-height:1.6;"></div>
+    <button class="btn-primary" id="btn-notif-activar" onclick="activarNotificaciones()">Activar notificaciones 🔔</button>
+    <div style="margin-top:16px;background:var(--bg);border-radius:var(--radius-sm);padding:14px;">
+      <p style="font-size:12px;color:var(--text2);line-height:1.7;">Las notificaciones te avisarán de eventos y tareas importantes. Abrí la app cada mañana para recibir las alertas del día.</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-edit-perfil" onclick="closeModalOutside(event,'modal-edit-perfil')">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Editar perfil</div>
+    <div class="form-group"><label>Nombre</label><input type="text" id="ep-nombre" placeholder="Tu nombre"/></div>
+    <div class="form-group"><label>Materia / Nivel</label><input type="text" id="ep-rol" placeholder="Ej: Matemática — Secundaria"/></div>
+    <div class="form-group"><label>Institución</label><input type="text" id="ep-inst" placeholder="Nombre de tu escuela"/></div>
+    <button class="btn-primary" onclick="guardarPerfil()">Guardar cambios</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── FIREBASE SETUP ──
+const firebaseConfig = {
+  apiKey: "AIzaSyBIs_gc3Fx08rwPH2zU5gYpYNfzVc56sjI",
+  authDomain: "lumia-agenda.firebaseapp.com",
+  projectId: "lumia-agenda",
+  storageBucket: "lumia-agenda.firebasestorage.app",
+  messagingSenderId: "758871737430",
+  appId: "1:758871737430:web:829a8c93fd6629e73127f7"
+};
+
+let db = null;
+try {
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.firestore();
+} catch(e) { console.log('Firebase init:', e.message); }
+
+async function saveUserDataCloud(uid, key, value) {
+  if (!db) return;
+  try { await db.collection('users').doc(String(uid)).collection('data').doc(key).set({ value: JSON.stringify(value) }); }
+  catch(e) { console.log('Save error:', e.message); }
+}
+
+async function loadUserDataCloud(uid, key) {
+  if (!db) return null;
+  try {
+    const snap = await db.collection('users').doc(String(uid)).collection('data').doc(key).get();
+    if (snap.exists) return JSON.parse(snap.data().value);
+  } catch(e) { console.log('Load error:', e.message); }
+  return null;
+}
+
+function shake() {
+  const inp = document.getElementById('access-input');
+  if (!inp) return;
+  inp.classList.add('error');
+  setTimeout(() => inp.classList.remove('error'), 400);
+}
+
+// ── DATA ──
+const LS = key => localStorage.getItem(key);
+const LSS = (key,val) => localStorage.setItem(key, JSON.stringify(val));
+const LSG = key => { try { return JSON.parse(LS(key)) || null; } catch{ return null; } };
+
+let user = LSG('lumia_user');
+let eventos = LSG('lumia_eventos') || [];
+let tareas = LSG('lumia_tareas') || [];
+let notas = LSG('lumia_notas') || [];
+let alumnos = LSG('lumia_alumnos') || [];
+let habitos = LSG('lumia_habitos') || [];
+let gastos = LSG('lumia_gastos') || [];
+let clases = LSG('lumia_clases') || [];
+let moodHistory = LSG('lumia_mood') || {};
+let config = LSG('lumia_config') || { theme: '' };
+
+let obSlide = 0;
+let selectedColor = '#B8A9E8';
+let selectedHabitoIcon = '💧';
+let agendaView = 'dia';
+let agendaDate = new Date();
+let tareaFilter = 'todas';
+let swReg = null;
+
+const frases = [
+  { text: "Hoy no sos mala profe, estás cansada."},
+  { text: "Vos podés con todo… y con un poquito más también, aunque no quieras." },
+  { text: "Un día a la vez, reina" },
+  { text: "Si explicaste tres veces, ya hiciste suficiente" },
+  { text: "No es desinterés, es adolescencia" },
+  { text: "Dale, reina, que esto no se corrige solo" },
+  { text: "Si no lloraste en el auto, ¿realmente fue un día docente?" },
+  { text: "Esto también es vocación… y terapia" },
+  { text: "Sos docente, no cualquiera aguanta esto" },
+  { text: "No es solo dar clase, es sostener" },
+  { text: "Docente cansada, pero jamás mediocre" },
+  { text: "No es suerte, es que te la bancás todos los días" },
+  { text: "Cansada sí, vencida jamás." },
+  { text: "Aunque dudes, tenés oficio" },
+  { text: "No estás sobreviviendo: estás construyendo" },
+  { text: "No todo salió bien, pero salió" },
+  { text: "Dale, que ya estás en modo automático nivel experta" },
+  { text: "Un mate, una clase, y seguimos" },
+];
+
+const tips = [
+  { icon: "💧", text: "Tomá al menos 8 vasos de agua al día. La hidratación mejora tu concentración y reduce el estrés." },
+  { icon: "🚶", text: "5 minutos de caminata entre clases ayudan a resetear tu mente y mejorar tu humor." },
+  { icon: "🫁", text: "Respirá profundo 3 veces antes de entrar a una clase difícil. Funciona." },
+  { icon: "📵", text: "Desconectarte del trabajo después de las 20hs mejora la calidad de tu sueño." },
+  { icon: "🌸", text: "Celebrá los pequeños logros. Cada alumno que avanza es un éxito tuyo." },
+  { icon: "☕", text: "Tomarte un descanso de 10 minutos entre tareas multiplica tu productividad." },
+];
+
+const avatarColors = ['#B8A9E8','#F2C4CE','#E8856A','#7DC4A0','#D4AF7A','#9B8DD4'];
+const CODIGOS_VALIDOS = [
+  'LUMIA2025',//usados
+  'DOCENTE01',//usados
+  'MAESTRA02',
+  'PROFE2025',
+  'AGENDA001',
+  'CLASE2025',
+  'PROFE0001',
+  'MAESTRA01',
+  'LUMIA0001',
+  'AGENDA002',
+];
+// ── CÓDIGOS DE ACCESO ──
+const ADMIN_PIN = 'URC10131'; // Contraseña secreta del panel admin — CAMBIALA
+
+function getCodigosDB() { return LSG('lumia_codigos') || []; }
+function saveCodigosDB(arr) { LSS('lumia_codigos', arr); }
+
+function generarCodigo() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+}
+
+function generarCodigos() {
+  const cant = parseInt(document.getElementById('gen-cantidad').value);
+  const dias = parseInt(document.getElementById('gen-vencimiento').value);
+  const codigos = getCodigosDB();
+  const nuevos = [];
+  for (let i = 0; i < cant; i++) {
+    let code;
+    do { code = generarCodigo(); } while (codigos.find(c => c.code === code));
+    const vence = dias > 0 ? new Date(Date.now() + dias * 86400000).toISOString() : null;
+    nuevos.push({ code, creado: new Date().toISOString(), vence, usado: false, usadoPor: null, usadoEn: null });
+  }
+  saveCodigosDB([...codigos, ...nuevos]);
+  renderAdminPanel();
+  showToast(`✅ ${cant} código${cant>1?'s':''} generado${cant>1?'s':''}`);
+}
+
+
+function verifyCode() {
+  const input = document.getElementById('access-input').value.trim().toUpperCase();
+  const errEl = document.getElementById('access-error');
+  if (input.length < 4) { errEl.textContent = 'El código debe tener al menos 4 caracteres.'; shake(); return; }
+  if (input === ADMIN_PIN) { showScreen('admin'); renderAdminPanel(); return; }
+  const found = CODIGOS_VALIDOS.includes(input);
+  if (!found) { errEl.textContent = '❌ Código incorrecto. Verificá que lo copiaste bien.'; shake(); return; }
+  localStorage.setItem('lumia_access', JSON.stringify({ code: input, ts: Date.now() }));
+  errEl.textContent = '';
+  document.getElementById('access-input').value = '';
+  if (!LS('lumia_ob_done')) { showScreen('onboarding'); }
+  else if (!user) { showScreen('auth'); }
+  else { initApp(); }
+}
+
+function renderAdminPanel() {
+  const codigos = getCodigosDB();
+  const total = codigos.length;
+  const usados = codigos.filter(c => c.usado).length;
+  const disponibles = codigos.filter(c => !c.usado && (!c.vence || new Date(c.vence) > new Date())).length;
+  document.getElementById('admin-stats').innerHTML = `
+    <div class="admin-stat"><div class="admin-stat-num">${total}</div><div class="admin-stat-lbl">Total</div></div>
+    <div class="admin-stat"><div class="admin-stat-num" style="color:var(--green);">${disponibles}</div><div class="admin-stat-lbl">Disponibles</div></div>
+    <div class="admin-stat"><div class="admin-stat-num" style="color:var(--accent);">${usados}</div><div class="admin-stat-lbl">Usados</div></div>`;
+  if (!codigos.length) {
+    document.getElementById('admin-codes-list').innerHTML = '<div class="empty"><span class="empty-icon">🎟️</span><h3>Sin códigos aún</h3><p>Generá tu primer lote de códigos arriba</p></div>';
+    return;
+  }
+  const sorted = [...codigos].reverse();
+  document.getElementById('admin-codes-list').innerHTML = sorted.map(c => {
+    const vencido = c.vence && new Date(c.vence) < new Date();
+    const statusCls = c.usado ? 'status-usado' : vencido ? 'status-vencido' : 'status-disponible';
+    const statusTxt = c.usado ? 'USADO' : vencido ? 'VENCIDO' : 'DISPONIBLE';
+    const venceStr = c.vence ? `Vence: ${new Date(c.vence).toLocaleDateString('es-AR',{day:'numeric',month:'short',year:'numeric'})}` : 'Sin vencimiento';
+    const usadoStr = c.usadoEn ? `Usado: ${new Date(c.usadoEn).toLocaleDateString('es-AR')}` : '';
+    return `<div class="code-item ${c.usado||vencido?'used':''}">
+      <div style="flex:1;">
+        <div class="code-text">${c.code}</div>
+        <div class="code-info">${venceStr}${usadoStr?' · '+usadoStr:''}</div>
+        <span class="code-status ${statusCls}">${statusTxt}</span>
+      </div>
+      <button class="btn-copy" onclick="copiarCodigo('${c.code}',this)" ${c.usado||vencido?'disabled style="opacity:0.4;"':''}>Copiar</button>
+    </div>`;
+  }).join('');
+}
+
+function copiarCodigo(code, btn) {
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = '✅';
+    setTimeout(() => btn.textContent = 'Copiar', 1500);
+  }).catch(() => {
+    const el = document.createElement('textarea');
+    el.value = code;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    btn.textContent = '✅';
+    setTimeout(() => btn.textContent = 'Copiar', 1500);
+  });
+}
+
+function exitAdmin() { showScreen('access'); }
+
+function hasValidAccess() {
+  try {
+    const acc = JSON.parse(localStorage.getItem('lumia_access'));
+    if (!acc) return false;
+    return CODIGOS_VALIDOS.includes(acc.code) || acc.code === ADMIN_PIN;
+  } catch(e) { return false; }
+}
+
+// ── INIT ──
+window.addEventListener('load', () => {
+  applyTheme(config.theme || '');
+  setTimeout(() => {
+    hideScreen('splash');
+    if (!hasValidAccess()) {
+      showScreen('access');
+    } else if (!LS('lumia_ob_done')) {
+      showScreen('onboarding');
+    } else if (!user) {
+      showScreen('auth');
+    } else {
+      initApp();
+    }
+  }, 1800);
+});
+;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function hideScreen(id) { document.getElementById(id).classList.remove('active'); }
+
+// ── ONBOARDING ──
+function nextSlide() {
+  if (obSlide < 2) {
+    obSlide++;
+    document.getElementById('ob-slides').style.transform = `translateX(-${obSlide*100}vw)`;
+    document.querySelectorAll('.ob-dot').forEach((d,i) => d.classList.toggle('active', i===obSlide));
+    if (obSlide === 2) document.getElementById('ob-btn').textContent = '¡Empezar! →';
+  } else { goToAuth(); }
+}
+function goToAuth() {
+  localStorage.setItem('lumia_ob_done','1');
+  showScreen('auth');
+}
+
+// ── AUTH ──
+function switchAuth(tab) {
+  document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='register')));
+  document.getElementById('panel-login').classList.toggle('active', tab==='login');
+  document.getElementById('panel-register').classList.toggle('active', tab==='register');
+}
+
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  if (!email || !pass) { showToast('⚠️ Completá todos los campos'); return; }
+  const users = LSG('lumia_users') || [];
+  const found = users.find(u => u.email === email && u.pass === pass);
+  if (!found) { showToast('❌ Email o contraseña incorrectos'); return; }
+  user = found;
+  LSS('lumia_user', user);
+  loadUserData().then(() => initApp());
+}
+
+function doRegister() {
+  const nombre = document.getElementById('reg-nombre').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass = document.getElementById('reg-pass').value;
+  const materia = document.getElementById('reg-materia').value.trim();
+  if (!nombre || !email || !pass) { showToast('⚠️ Completá todos los campos'); return; }
+  if (pass.length < 6) { showToast('⚠️ La contraseña debe tener al menos 6 caracteres'); return; }
+  const users = LSG('lumia_users') || [];
+  if (users.find(u => u.email === email)) { showToast('❌ Ese email ya está registrado'); return; }
+  const newUser = { id: Date.now(), nombre, email, pass, materia, avatar: nombre[0].toUpperCase(), colorIdx: 0 };
+  users.push(newUser);
+  LSS('lumia_users', users);
+  user = newUser;
+  LSS('lumia_user', user);
+  loadUserData().then(() => initApp());
+}
+
+function doGoogleLogin() {
+  const nombre = 'Verónica';
+  const email = 'veronica@gmail.com';
+  const users = LSG('lumia_users') || [];
+  let found = users.find(u => u.email === email);
+  if (!found) {
+    found = { id: Date.now(), nombre, email, pass: '', materia: 'Docente', avatar: 'V', colorIdx: 0 };
+    users.push(found);
+    LSS('lumia_users', users);
+  }
+  user = found;
+  LSS('lumia_user', user);
+  loadUserData().then(() => initApp());
+}
+
+async function loadUserData() {
+  const uid = String(user.id);
+  // Try loading from Firebase first, fallback to localStorage
+  const cloudGrupos = await loadUserDataCloud(uid, 'grupos');
+  const cloudEventos = await loadUserDataCloud(uid, 'eventos');
+  const cloudTareas = await loadUserDataCloud(uid, 'tareas');
+  const cloudNotas = await loadUserDataCloud(uid, 'notas');
+  const cloudAlumnos = await loadUserDataCloud(uid, 'alumnos');
+  const cloudHabitos = await loadUserDataCloud(uid, 'habitos');
+  const cloudGastos = await loadUserDataCloud(uid, 'gastos');
+  const cloudClases = await loadUserDataCloud(uid, 'clases');
+  const cloudMood = await loadUserDataCloud(uid, 'mood');
+
+  grupos = cloudGrupos || LSG(`lumia_grupos_${uid}`) || [];
+  eventos = cloudEventos || LSG(`lumia_eventos_${uid}`) || [];
+  tareas = cloudTareas || LSG(`lumia_tareas_${uid}`) || [];
+  notas = cloudNotas || LSG(`lumia_notas_${uid}`) || [];
+  alumnos = cloudAlumnos || LSG(`lumia_alumnos_${uid}`) || [];
+  habitos = cloudHabitos || LSG(`lumia_habitos_${uid}`) || [
+    { id:1, nombre:'Tomar agua', icon:'💧', dias:[false,false,false,false,false,false,false] },
+    { id:2, nombre:'Caminar', icon:'🚶', dias:[false,false,false,false,false,false,false] },
+  ];
+  gastos = cloudGastos || LSG(`lumia_gastos_${uid}`) || [];
+  clases = cloudClases || LSG(`lumia_clases_${uid}`) || [];
+  moodHistory = cloudMood || LSG(`lumia_mood_${uid}`) || {};
+}
+
+function saveAll() {
+  if (!user) return;
+  const uid = String(user.id);
+  LSS(`lumia_grupos_${uid}`, grupos);
+  LSS(`lumia_eventos_${uid}`, eventos);
+  LSS(`lumia_tareas_${uid}`, tareas);
+  LSS(`lumia_notas_${uid}`, notas);
+  LSS(`lumia_alumnos_${uid}`, alumnos);
+  LSS(`lumia_habitos_${uid}`, habitos);
+  LSS(`lumia_gastos_${uid}`, gastos);
+  LSS(`lumia_clases_${uid}`, clases);
+  LSS(`lumia_mood_${uid}`, moodHistory);
+  // Save to Firebase cloud
+  saveUserDataCloud(uid, 'grupos', grupos);
+  saveUserDataCloud(uid, 'eventos', eventos);
+  saveUserDataCloud(uid, 'tareas', tareas);
+  saveUserDataCloud(uid, 'notas', notas);
+  saveUserDataCloud(uid, 'alumnos', alumnos);
+  saveUserDataCloud(uid, 'habitos', habitos);
+  saveUserDataCloud(uid, 'gastos', gastos);
+  saveUserDataCloud(uid, 'clases', clases);
+  saveUserDataCloud(uid, 'mood', moodHistory);
+}
+
+function doLogout() {
+  if (!confirm('¿Cerrar sesión?')) return;
+  user = null;
+  localStorage.removeItem('lumia_user');
+  showScreen('auth');
+}
+
+// ── APP INIT ──
+function initApp() {
+  showScreen('app');
+  updateHeader();
+  renderHome();
+  renderAgenda();
+  renderTareas();
+  renderNotas();
+  renderGrupos(); renderAlumnos();
+  renderHabitos();
+  renderBienestar();
+  renderGastos();
+  renderClases();
+  renderPerfil();
+  checkNotificaciones();
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').then(r => { swReg = r; }).catch(() => {});
+  }
+}
+
+function updateHeader() {
+  if (!user) return;
+  document.getElementById('header-avatar').textContent = user.avatar || user.nombre[0].toUpperCase();
+  document.getElementById('header-avatar').style.background = `linear-gradient(135deg,${avatarColors[user.colorIdx||0]},var(--secondary))`;
+}
+
+// ── HOME ──
+function renderHome() {
+  const now = new Date();
+  const h = now.getHours();
+  const sal = h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches';
+  const emj = h < 12 ? '☀️' : h < 19 ? '🌤️' : '🌙';
+  document.getElementById('greeting-text').textContent = `${sal} ${emj}, ${user?.nombre?.split(' ')[0] || ''}`;
+  document.getElementById('greeting-date').textContent = now.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+  const frase = frases[now.getDate() % frases.length];
+  document.getElementById('frase-text').textContent = `"${frase.text}"`;
+  document.getElementById('frase-author').textContent = `— ${frase.author}`;
+
+  const hoyStr = now.toISOString().split('T')[0];
+  const mood = moodHistory[hoyStr];
+  if (mood !== undefined) {
+    document.querySelectorAll('.mood-btn')[mood].classList.add('selected');
+  }
+
+  const pendientes = tareas.filter(t => !t.done);
+  document.getElementById('q-tareas-sub').textContent = `${pendientes.length} pendiente${pendientes.length!==1?'s':''}`;
+  document.getElementById('q-alumnos-sub').textContent = `${alumnos.length} alumno${alumnos.length!==1?'s':''}`;
+  document.getElementById('q-notas-sub').textContent = `${notas.length} nota${notas.length!==1?'s':''}`;
+
+  const evHoy = eventos.filter(e => e.fecha === hoyStr);
+  document.getElementById('q-agenda-sub').textContent = evHoy.length > 0 ? `${evHoy.length} evento${evHoy.length!==1?'s':''} hoy` : 'Sin eventos hoy';
+
+  const tareasHoy = tareas.filter(t => t.fecha === hoyStr || (!t.fecha && !t.done)).slice(0,4);
+  const cont = document.getElementById('today-tasks-container');
+  if (!tareasHoy.length) {
+    cont.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px;">¡Sin tareas para hoy! 🌸</div>';
+  } else {
+    cont.innerHTML = tareasHoy.map((t,i) => `
+      <div class="task-mini">
+        <div class="task-mini-check ${t.done?'done':''}" onclick="quickToggleTarea(${tareas.indexOf(t)})">
+          ${t.done?'<svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5"><polyline points="1.5,6 4.5,9 10.5,3"/></svg>':''}
+        </div>
+        <span class="task-mini-text ${t.done?'done':''}">${t.titulo}</span>
+        <span class="task-mini-time">${{alta:'🔴',media:'🟡',baja:'🟢'}[t.prioridad]||''}</span>
+      </div>`).join('');
+  }
+}
+
+function selectMood(idx, btn) {
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  const hoyStr = new Date().toISOString().split('T')[0];
+  moodHistory[hoyStr] = idx;
+  saveAll();
+  showToast('Estado de ánimo guardado 🌸');
+}
+
+function quickToggleTarea(idx) {
+  tareas[idx].done = !tareas[idx].done;
+  saveAll();
+  renderHome();
+  renderTareas();
+}
+
+// ── AGENDA ──
+function setAgendaView(view, btn) {
+  agendaView = view;
+  document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderAgenda();
+}
+
+function renderAgenda() {
+  const cont = document.getElementById('agenda-content');
+  if (agendaView === 'dia') renderAgendaDia(cont);
+  else if (agendaView === 'semana') renderAgendaSemana(cont);
+  else renderAgendaMes(cont);
+}
+
+function renderAgendaDia(cont) {
+  const dateStr = agendaDate.toISOString().split('T')[0];
+  const label = agendaDate.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});
+  const evs = eventos.filter(e => e.fecha === dateStr).sort((a,b)=>a.hora.localeCompare(b.hora));
+  cont.innerHTML = `
+    <div class="agenda-nav">
+      <button class="agenda-nav-btn" onclick="changeDay(-1)">‹</button>
+      <div class="agenda-period">${label}</div>
+      <button class="agenda-nav-btn" onclick="changeDay(1)">›</button>
+    </div>
+    ${evs.length ? evs.map(ev => `
+      <div class="evento-card">
+        <div class="evento-time">${ev.hora||'Todo el día'}</div>
+        <div class="evento-bar" style="background:${ev.color||'var(--primary)'}"></div>
+        <div class="evento-info">
+          <div class="evento-title">${ev.titulo}</div>
+          ${ev.lugar?`<div class="evento-meta">📍 ${ev.lugar}</div>`:''}
+          ${ev.notas?`<div class="evento-meta">${ev.notas}</div>`:''}
+        </div>
+      </div>`).join('') : '<div class="empty"><span class="empty-icon">📅</span><h3>Sin eventos</h3><p>Tocá + para agregar un evento</p></div>'}`;
+}
+
+function renderAgendaSemana(cont) {
+  const dias = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const startOfWeek = new Date(agendaDate);
+  startOfWeek.setDate(agendaDate.getDate() - agendaDate.getDay());
+  const weekDays = Array.from({length:7},(_,i)=>{
+    const d = new Date(startOfWeek); d.setDate(startOfWeek.getDate()+i); return d;
+  });
+  const label = `${weekDays[0].getDate()}/${weekDays[0].getMonth()+1} — ${weekDays[6].getDate()}/${weekDays[6].getMonth()+1}`;
+  const hoy = new Date().toISOString().split('T')[0];
+  cont.innerHTML = `
+    <div class="agenda-nav">
+      <button class="agenda-nav-btn" onclick="changeWeek(-1)">‹</button>
+      <div class="agenda-period">${label}</div>
+      <button class="agenda-nav-btn" onclick="changeWeek(1)">›</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px;">
+      ${weekDays.map(d=>{
+        const ds = d.toISOString().split('T')[0];
+        const cnt = eventos.filter(e=>e.fecha===ds).length;
+        const isHoy = ds===hoy;
+        return `<div onclick="jumpToDay('${ds}')" style="background:${isHoy?'var(--primary)':'var(--white)'};border-radius:var(--radius-xs);padding:8px 4px;text-align:center;cursor:pointer;border:1px solid var(--border);">
+          <div style="font-size:10px;color:${isHoy?'rgba(255,255,255,0.8)':'var(--text3)'};font-weight:600;">${dias[d.getDay()]}</div>
+          <div style="font-size:16px;font-weight:700;color:${isHoy?'white':'var(--text)'};">${d.getDate()}</div>
+          ${cnt>0?`<div style="width:6px;height:6px;border-radius:50%;background:${isHoy?'rgba(255,255,255,0.7)':'var(--accent)'};margin:2px auto 0;"></div>`:''}
+        </div>`;}).join('')}
+    </div>
+    ${weekDays.flatMap(d=>{
+      const ds = d.toISOString().split('T')[0];
+      return eventos.filter(e=>e.fecha===ds).map(ev=>`
+        <div class="evento-card">
+          <div class="evento-time" style="font-size:11px;">${dias[d.getDay()]} ${d.getDate()}<br>${ev.hora||''}</div>
+          <div class="evento-bar" style="background:${ev.color||'var(--primary)'}"></div>
+          <div class="evento-info"><div class="evento-title">${ev.titulo}</div>${ev.lugar?`<div class="evento-meta">📍 ${ev.lugar}</div>`:''}</div>
+        </div>`);
+    }).join('') || '<div class="empty"><span class="empty-icon">📅</span><h3>Semana libre</h3><p>No hay eventos esta semana</p></div>'}`;
+}
+
+function renderAgendaMes(cont) {
+  const y = agendaDate.getFullYear(), m = agendaDate.getMonth();
+  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  const firstDay = new Date(y,m,1).getDay();
+  const daysInMonth = new Date(y,m+1,0).getDate();
+  const hoy = new Date();
+  const hoyStr = hoy.toISOString().split('T')[0];
+  let days = '';
+  for(let i=0;i<firstDay;i++) days+=`<div class="cal-day other-month"></div>`;
+  for(let d=1;d<=daysInMonth;d++){
+    const ds = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const hasEv = eventos.some(e=>e.fecha===ds);
+    const isHoy = ds===hoyStr;
+    days+=`<div class="cal-day ${isHoy?'today':''}" onclick="jumpToDay('${ds}')">${d}${hasEv?'<div class="cal-day-dot"></div>':''}</div>`;
+  }
+  cont.innerHTML = `
+    <div class="agenda-nav">
+      <button class="agenda-nav-btn" onclick="changeMonth(-1)">‹</button>
+      <div class="agenda-period">${meses[m]} ${y}</div>
+      <button class="agenda-nav-btn" onclick="changeMonth(1)">›</button>
+    </div>
+    <div class="calendar-grid">
+      <div class="cal-header">${['D','L','M','M','J','V','S'].map(d=>`<div class="cal-day-name">${d}</div>`).join('')}</div>
+      <div class="cal-days">${days}</div>
+    </div>`;
+}
+
+function changeDay(n){ agendaDate.setDate(agendaDate.getDate()+n); renderAgenda(); }
+function changeWeek(n){ agendaDate.setDate(agendaDate.getDate()+n*7); renderAgenda(); }
+function changeMonth(n){ agendaDate.setMonth(agendaDate.getMonth()+n); renderAgenda(); }
+function jumpToDay(ds){ agendaDate=new Date(ds+'T12:00:00'); agendaView='dia'; document.querySelectorAll('.view-tab')[0].click(); }
+
+// ── TAREAS ──
+function setTareaFilter(f,btn){
+  tareaFilter=f;
+  document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  renderTareas();
+}
+
+function renderTareas(){
+  let lista=[...tareas].sort((a,b)=>{
+    const po={alta:0,media:1,baja:2}; return (po[a.prioridad]||1)-(po[b.prioridad]||1);
+  });
+  if(tareaFilter==='pendientes') lista=lista.filter(t=>!t.done);
+  else if(tareaFilter==='alta') lista=lista.filter(t=>t.prioridad==='alta');
+  else if(tareaFilter==='docente') lista=lista.filter(t=>t.cat==='docente');
+  else if(tareaFilter==='personal') lista=lista.filter(t=>t.cat==='personal');
+  const cont=document.getElementById('tareas-list');
+  if(!lista.length){cont.innerHTML='<div class="empty"><span class="empty-icon">✅</span><h3>¡Todo al día!</h3><p>Tocá + para agregar una tarea</p></div>';return;}
+  cont.innerHTML=lista.map(t=>{
+    const idx=tareas.indexOf(t);
+    const chips={alta:'<span class="tarea-chip chip-alta">🔴 Alta</span>',media:'<span class="tarea-chip chip-media">🟡 Media</span>',baja:'<span class="tarea-chip chip-baja">🟢 Baja</span>'};
+    const cats={docente:'<span class="tarea-chip chip-cat">📚 Docente</span>',personal:'<span class="tarea-chip chip-cat" style="background:var(--secondary-light);color:#B86078;">🌸 Personal</span>',admin:'<span class="tarea-chip chip-cat" style="background:var(--gold-light);color:#8A6B2E;">📋 Admin</span>'};
+    return `<div class="tarea-card">
+      <div class="tarea-check ${t.done?'done':''}" onclick="toggleTarea(${idx})">
+        ${t.done?'<svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.5"><polyline points="1.5,6 4.5,9 10.5,3"/></svg>':''}
+      </div>
+      <div class="tarea-body">
+        <div class="tarea-title ${t.done?'done':''}">${t.titulo}</div>
+        <div class="tarea-meta">
+          ${chips[t.prioridad]||''}${cats[t.cat]||''}
+          ${t.fecha?`<span class="tarea-chip" style="background:var(--bg);color:var(--text2);">📅 ${formatFecha(t.fecha)}</span>`:''}
+        </div>
+      </div>
+      <button onclick="eliminarTarea(${idx})" style="background:none;border:none;color:var(--text3);font-size:18px;cursor:pointer;padding:4px;">×</button>
+    </div>`;
+  }).join('');
+}
+
+function toggleTarea(idx){ tareas[idx].done=!tareas[idx].done; saveAll(); renderTareas(); renderHome(); }
+function eliminarTarea(idx){ tareas.splice(idx,1); saveAll(); renderTareas(); renderHome(); }
+
+// ── NOTAS ──
+function renderNotas(){
+  const cont=document.getElementById('notas-list');
+  if(!notas.length){cont.innerHTML='<div class="empty"><span class="empty-icon">📝</span><h3>Sin notas</h3><p>Tocá + para escribir tu primera nota</p></div>';return;}
+  cont.innerHTML=notas.map((n,i)=>`
+    <div class="nota-card" onclick="verNota(${i})">
+      <div class="nota-title">${n.titulo||'Sin título'}</div>
+      <div class="nota-preview">${n.contenido}</div>
+      <div class="nota-date">${formatFechaCorta(n.fecha)}</div>
+    </div>`).join('');
+}
+
+function verNota(idx){
+  const n=notas[idx];
+  document.getElementById('notas-content').style.display='none';
+  document.getElementById('nota-detalle').style.display='block';
+  document.getElementById('nota-detalle').innerHTML=`
+    <button class="back-btn" onclick="volverNotas()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>Volver</button>
+    <div style="background:var(--white);border-radius:var(--radius);padding:20px;border:1px solid var(--border);">
+      <div style="font-family:var(--font-display);font-size:20px;font-weight:600;margin-bottom:12px;">${n.titulo||'Sin título'}</div>
+      <div style="font-size:13px;color:var(--text3);margin-bottom:16px;">${formatFechaCorta(n.fecha)}</div>
+      <div style="font-size:15px;color:var(--text);line-height:1.8;white-space:pre-wrap;">${n.contenido}</div>
+    </div>
+    <button onclick="eliminarNota(${idx})" style="width:100%;margin-top:16px;padding:13px;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--accent);font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;">Eliminar nota</button>`;
+}
+
+function volverNotas(){
+  document.getElementById('notas-content').style.display='block';
+  document.getElementById('nota-detalle').style.display='none';
+}
+
+function eliminarNota(idx){ notas.splice(idx,1); saveAll(); volverNotas(); renderNotas(); }
+
+// ── ALUMNOS Y GRUPOS ──
+let grupos = LSG(`lumia_grupos_${user?.id}`) || [];
+let grupoActualIdx = null;
+let selectedGrupoColor = '#B8A9E8';
+
+function selectGrupoColor(el, color) {
+  selectedGrupoColor = color;
+  document.querySelectorAll('#grupo-color-picker .color-opt').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function guardarGrupo() {
+  const curso = document.getElementById('gr-curso').value.trim();
+  const colegio = document.getElementById('gr-colegio').value.trim();
+  if (!curso || !colegio) { showToast('⚠️ Completá curso y colegio'); return; }
+  grupos.push({ id: Date.now(), curso, colegio, materia: document.getElementById('gr-materia').value.trim(), color: selectedGrupoColor });
+  LSS(`lumia_grupos_${user.id}`, grupos);
+  closeModal('modal-grupo');
+  ['gr-curso','gr-colegio','gr-materia'].forEach(id => document.getElementById(id).value = '');
+  renderGrupos();
+  showToast('✅ Curso creado');
+}
+
+function renderGrupos() {
+  const cont = document.getElementById('grupos-list');
+  if (!grupos.length) {
+    cont.innerHTML = '<div class="empty"><span class="empty-icon">🏫</span><h3>Sin cursos</h3><p>Tocá "+ Nuevo curso" para agregar tu primer grado o curso</p></div>';
+    return;
+  }
+  cont.innerHTML = grupos.map((g, i) => {
+    const almsGrupo = alumnos.filter(a => a.grupoId === g.id);
+    const initials = g.curso.replace(/[°ºª]/g, '').trim().substring(0, 2).toUpperCase();
+    return `<div class="grupo-card" onclick="abrirGrupo(${i})">
+      <div class="grupo-icon" style="background:${g.color};">${initials}</div>
+      <div class="grupo-info">
+        <div class="grupo-nombre">${g.curso}</div>
+        <div class="grupo-colegio">🏫 ${g.colegio}</div>
+        ${g.materia ? `<div class="grupo-materia">📚 ${g.materia}</div>` : ''}
+      </div>
+      <div class="grupo-meta">
+        <span class="grupo-count" style="background:${g.color};">${almsGrupo.length}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function abrirGrupo(idx) {
+  grupoActualIdx = idx;
+  const g = grupos[idx];
+  document.getElementById('alumnos-vista-grupos').style.display = 'none';
+  document.getElementById('alumnos-vista-lista').style.display = 'block';
+  document.getElementById('lista-titulo').textContent = g.curso;
+  document.getElementById('grupo-header-info').innerHTML = `
+    <div class="grupo-header-banner" style="background:${g.color}18;border:1px solid ${g.color}40;">
+      <div class="grupo-header-icon" style="background:${g.color};">${g.curso.replace(/[°ºª]/g,'').trim().substring(0,2).toUpperCase()}</div>
+      <div>
+        <div class="grupo-header-nombre">${g.curso}</div>
+        <div class="grupo-header-sub">🏫 ${g.colegio}${g.materia ? ' · 📚 ' + g.materia : ''}</div>
+      </div>
+      <button onclick="eliminarGrupo(${idx})" style="margin-left:auto;background:none;border:none;font-size:18px;cursor:pointer;color:var(--text3);">×</button>
+    </div>`;
+  renderAlumnos();
+}
+
+function volverGrupos() {
+  grupoActualIdx = null;
+  document.getElementById('alumnos-vista-grupos').style.display = 'block';
+  document.getElementById('alumnos-vista-lista').style.display = 'none';
+  document.getElementById('alumno-detalle').style.display = 'none';
+  renderGrupos();
+}
+
+function eliminarGrupo(idx) {
+  const g = grupos[idx];
+  const cant = alumnos.filter(a => a.grupoId === g.id).length;
+  if (!confirm(`¿Eliminar el curso ${g.curso}? También se eliminarán los ${cant} alumnos de ese curso.`)) return;
+  alumnos = alumnos.filter(a => a.grupoId !== g.id);
+  grupos.splice(idx, 1);
+  LSS(`lumia_grupos_${user.id}`, grupos);
+  saveAll();
+  volverGrupos();
+  showToast('Curso eliminado');
+}
+
+function renderAlumnos(filtro = '') {
+  const cont = document.getElementById('alumnos-list');
+  const grupoId = grupoActualIdx !== null ? grupos[grupoActualIdx]?.id : null;
+  let lista = alumnos.filter(a => grupoId ? a.grupoId === grupoId : true);
+  if (filtro) lista = lista.filter(a => a.nombre.toLowerCase().includes(filtro.toLowerCase()));
+  if (!lista.length) {
+    cont.innerHTML = '<div class="empty"><span class="empty-icon">👩‍🎓</span><h3>Sin alumnos</h3><p>Tocá "+ Alumno" para agregar</p></div>';
+    return;
+  }
+  const states = { ok: '<span class="alumno-status status-ok">✅ Al día</span>', warn: '<span class="alumno-status status-warn">⚠️ Atención</span>', alert: '<span class="alumno-status status-alert">🚨 Urgente</span>' };
+  const gColor = grupoActualIdx !== null ? grupos[grupoActualIdx]?.color : '#B8A9E8';
+  cont.innerHTML = lista.map(a => {
+    const idx = alumnos.indexOf(a);
+    return `<div class="alumno-card" onclick="verAlumno(${idx})">
+      <div class="alumno-avatar" style="background:${gColor};">${a.nombre[0].toUpperCase()}</div>
+      <div class="alumno-info">
+        <div class="alumno-name">${a.nombre}</div>
+        <div class="alumno-curso">${promedioLabel(a)}</div>
+      </div>
+      ${states[a.estado] || ''}
+    </div>`;
+  }).join('');
+}
+
+function promedioLabel(a) {
+  const notas = a.notasNumericas || [];
+  if (!notas.length) return 'Sin notas aún';
+  const prom = (notas.reduce((s, n) => s + parseFloat(n.valor), 0) / notas.length).toFixed(1);
+  return `Promedio: ${prom}`;
+}
+
+function filtrarAlumnos() { renderAlumnos(document.getElementById('search-alumno').value); }
+
+function verAlumno(idx) {
+  const a = alumnos[idx];
+  const grupoId = a.grupoId;
+  const grupo = grupos.find(g => g.id === grupoId);
+  const color = grupo?.color || '#B8A9E8';
+  const states = { ok: '✅ Al día', warn: '⚠️ Necesita atención', alert: '🚨 Urgente' };
+  document.getElementById('alumnos-vista-lista').style.display = 'none';
+  const det = document.getElementById('alumno-detalle');
+  det.style.display = 'block';
+  const obs = a.observaciones || [];
+  const notas = a.notasNumericas || [];
+  const prom = notas.length ? (notas.reduce((s, n) => s + parseFloat(n.valor), 0) / notas.length).toFixed(1) : null;
+  const promColor = prom ? (prom >= 7 ? 'var(--green)' : prom >= 5 ? 'var(--gold)' : 'var(--accent)') : 'var(--text3)';
+  det.innerHTML = `
+    <button class="back-btn" onclick="volverListaAlumnos(${grupoActualIdx})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>Volver</button>
+    <div class="detail-header">
+      <div class="detail-avatar" style="background:${color};">${a.nombre[0].toUpperCase()}</div>
+      <div class="detail-name">${a.nombre}</div>
+      <div class="detail-curso">${grupo ? grupo.curso + ' · ' + grupo.colegio : ''} · ${states[a.estado] || ''}</div>
+    </div>
+    <div class="info-grid" style="grid-template-columns:1fr 1fr 1fr;">
+      <div class="info-box"><div class="info-box-num" style="color:${promColor};">${prom || '—'}</div><div class="info-box-lbl">Promedio</div></div>
+      <div class="info-box"><div class="info-box-num" style="color:var(--primary-dark);">${notas.length}</div><div class="info-box-lbl">Notas</div></div>
+      <div class="info-box"><div class="info-box-num" style="color:var(--text2);">${obs.length}</div><div class="info-box-lbl">Observ.</div></div>
+    </div>
+
+    <div class="section-title">📊 Notas / Calificaciones</div>
+    <div style="background:var(--white);border-radius:var(--radius-sm);padding:16px;border:1px solid var(--border);margin-bottom:16px;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+        <input type="number" id="nota-valor" min="1" max="10" step="0.5" placeholder="Nota (1-10)" style="flex:1;min-width:80px;padding:10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font);font-size:15px;font-weight:700;text-align:center;background:var(--bg);color:var(--text);outline:none;"/>
+        <input type="text" id="nota-desc" placeholder="Descripción (ej: Parcial U1)" style="flex:2;min-width:120px;padding:10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font);font-size:14px;background:var(--bg);color:var(--text);outline:none;"/>
+      </div>
+      <button onclick="agregarNota(${idx})" style="width:100%;padding:11px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;">+ Agregar nota</button>
+    </div>
+    ${notas.length ? notas.map((n, ni) => {
+      const nColor = parseFloat(n.valor) >= 7 ? 'var(--green)' : parseFloat(n.valor) >= 5 ? 'var(--gold)' : 'var(--accent)';
+      return `<div class="nota-num-card">
+        <div class="nota-num-header">
+          <div class="nota-num-materia">${n.desc || 'Evaluación'}</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="nota-num-fecha">${formatFechaCorta(n.fecha)}</div>
+            <button onclick="eliminarNota(${idx},${ni})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;">×</button>
+          </div>
+        </div>
+        <div class="nota-num-valor" style="color:${nColor};">${parseFloat(n.valor).toFixed(1)}</div>
+      </div>`;
+    }).join('') : '<div style="font-size:13px;color:var(--text3);margin-bottom:16px;">Sin notas cargadas aún</div>'}
+
+    <div class="section-title" style="margin-top:8px;">📋 Observaciones</div>
+    ${obs.map(o => `<div class="obs-item"><div class="obs-date">${formatFechaCorta(o.fecha)}</div><div class="obs-text">${o.texto}</div></div>`).join('') || '<div style="font-size:13px;color:var(--text3);margin-bottom:12px;">Sin observaciones aún</div>'}
+    <div style="margin-top:8px;">
+      <textarea id="obs-nueva" placeholder="Nueva observación..." style="width:100%;padding:12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font);font-size:14px;color:var(--text);background:var(--bg);outline:none;resize:none;height:75px;"></textarea>
+    </div>
+    <button onclick="agregarObservacion(${idx})" style="width:100%;margin-top:8px;padding:13px;background:var(--primary);color:white;border:none;border-radius:var(--radius-sm);font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;">Agregar observación</button>
+    <button onclick="eliminarAlumno(${idx})" style="width:100%;margin-top:10px;padding:13px;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--accent);font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;">Eliminar alumno/a</button>`;
+}
+
+function volverListaAlumnos(gIdx) {
+  grupoActualIdx = gIdx;
+  document.getElementById('alumno-detalle').style.display = 'none';
+  document.getElementById('alumnos-vista-lista').style.display = 'block';
+  renderAlumnos();
+}
+
+function agregarNota(idx) {
+  const valor = document.getElementById('nota-valor').value;
+  const desc = document.getElementById('nota-desc').value.trim();
+  if (!valor || parseFloat(valor) < 1 || parseFloat(valor) > 10) { showToast('⚠️ Ingresá una nota entre 1 y 10'); return; }
+  if (!alumnos[idx].notasNumericas) alumnos[idx].notasNumericas = [];
+  alumnos[idx].notasNumericas.unshift({ valor: parseFloat(valor), desc, fecha: new Date().toISOString() });
+  saveAll();
+  verAlumno(idx);
+  showToast('✅ Nota guardada');
+}
+
+function eliminarNota(alumnoIdx, notaIdx) {
+  alumnos[alumnoIdx].notasNumericas.splice(notaIdx, 1);
+  saveAll();
+  verAlumno(alumnoIdx);
+}
+
+function agregarObservacion(idx) {
+  const txt = document.getElementById('obs-nueva').value.trim();
+  if (!txt) { showToast('⚠️ Escribí una observación'); return; }
+  if (!alumnos[idx].observaciones) alumnos[idx].observaciones = [];
+  alumnos[idx].observaciones.unshift({ texto: txt, fecha: new Date().toISOString() });
+  saveAll();
+  verAlumno(idx);
+  showToast('✅ Observación guardada');
+}
+
+function eliminarAlumno(idx) { if (!confirm('¿Eliminar este alumno/a?')) return; alumnos.splice(idx, 1); saveAll(); volverListaAlumnos(grupoActualIdx); showToast('Alumno eliminado'); }
+
+// ── HÁBITOS ──
+function renderHabitos(){
+  const cont=document.getElementById('habitos-list');
+  if(!habitos.length){cont.innerHTML='<div class="empty"><span class="empty-icon">🌱</span><h3>Sin hábitos</h3><p>Tocá + para crear tu primer hábito</p></div>';return;}
+  const dias=['L','M','M','J','V','S','D'];
+  const hoy=new Date().getDay();
+  cont.innerHTML=habitos.map((h,idx)=>{
+    const racha=calcRacha(h);
+    return `<div class="habito-card">
+      <div class="habito-header">
+        <div class="habito-icon">${h.icon}</div>
+        <div class="habito-name">${h.nombre}</div>
+        <div class="habito-racha">🔥 ${racha} días</div>
+      </div>
+      <div class="habito-week">
+        ${h.dias.map((d,i)=>`<div class="habito-day ${d?'done':''} ${i===hoy?'today-marker':''}" onclick="toggleHabitoDia(${idx},${i})">${dias[i]}</div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleHabitoDia(hIdx,dIdx){ habitos[hIdx].dias[dIdx]=!habitos[hIdx].dias[dIdx]; saveAll(); renderHabitos(); }
+function calcRacha(h){ let r=0; for(let i=h.dias.length-1;i>=0;i--){ if(h.dias[i])r++; else break; } return r; }
+
+// ── BIENESTAR ──
+function renderBienestar(){
+  const dias=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  const emojis=['😔','😕','😊','😄','🌟'];
+  const now=new Date();
+  const week=Array.from({length:7},(_,i)=>{ const d=new Date(now); d.setDate(now.getDate()-6+i); return d; });
+  document.getElementById('mood-week').innerHTML=week.map(d=>{
+    const ds=d.toISOString().split('T')[0];
+    const mood=moodHistory[ds];
+    return `<div class="mood-week-day">
+      <div class="mood-week-emoji">${mood!==undefined?emojis[mood]:'·'}</div>
+      <div class="mood-week-lbl">${dias[d.getDay()===0?6:d.getDay()-1]}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('tips-list').innerHTML=tips.map(t=>`
+    <div class="tip-card"><div class="tip-icon">${t.icon}</div><div class="tip-text">${t.text}</div></div>`).join('');
+}
+
+// ── GASTOS ──
+function renderGastos(){
+  const ingresos=gastos.filter(g=>g.tipo==='ingreso').reduce((s,g)=>s+parseFloat(g.monto||0),0);
+  const egresos=gastos.filter(g=>g.tipo==='egreso').reduce((s,g)=>s+parseFloat(g.monto||0),0);
+  document.getElementById('gastos-resumen').innerHTML=`
+    <div class="gasto-stat"><div class="gasto-stat-num" style="color:var(--green);">$${ingresos.toFixed(0)}</div><div class="gasto-stat-lbl">Ingresos</div></div>
+    <div class="gasto-stat"><div class="gasto-stat-num" style="color:var(--accent);">$${egresos.toFixed(0)}</div><div class="gasto-stat-lbl">Egresos</div></div>`;
+  const catIcons={materiales:'📦',transporte:'🚌',alimentacion:'🍽️',sueldo:'💼',extra:'⭐',otro:'📋'};
+  const catColors={materiales:'var(--primary-light)',transporte:'var(--gold-light)',alimentacion:'var(--secondary-light)',sueldo:'var(--green-light)',extra:'var(--accent-light)',otro:'var(--bg)'};
+  const cont=document.getElementById('gastos-list');
+  if(!gastos.length){cont.innerHTML='<div class="empty"><span class="empty-icon">💰</span><h3>Sin movimientos</h3><p>Tocá Agregar para registrar un gasto o ingreso</p></div>';return;}
+  cont.innerHTML=[...gastos].reverse().map((g,i)=>`
+    <div class="gasto-item">
+      <div class="gasto-cat-icon" style="background:${catColors[g.cat]||'var(--bg)'};">${catIcons[g.cat]||'📋'}</div>
+      <div class="gasto-info"><div class="gasto-desc">${g.desc}</div><div class="gasto-cat">${g.cat}</div></div>
+      <div class="gasto-monto ${g.tipo==='ingreso'?'gasto-ingreso':'gasto-egreso'}">${g.tipo==='ingreso'?'+':'-'}$${parseFloat(g.monto).toFixed(0)}</div>
+    </div>`).join('');
+}
+
+// ── CLASES ──
+function renderClases(){
+  const cont=document.getElementById('clases-list');
+  if(!clases.length){cont.innerHTML='<div class="empty"><span class="empty-icon">📖</span><h3>Sin clases registradas</h3><p>Llevá el libro de temas digital</p></div>';return;}
+  cont.innerHTML=[...clases].reverse().map((c,i)=>`
+    <div class="obs-item">
+      <div class="obs-date">📅 ${formatFechaCorta(c.fecha)} · ${c.curso}</div>
+      <div class="obs-text" style="font-weight:600;margin-bottom:4px;">${c.tema}</div>
+      ${c.actividades?`<div class="obs-text">${c.actividades}</div>`:''}
+      ${c.tarea?`<div style="margin-top:6px;font-size:12px;color:var(--primary-dark);">📚 Tarea: ${c.tarea}</div>`:''}
+      ${c.obs?`<div style="margin-top:4px;font-size:12px;color:var(--text3);">📋 ${c.obs}</div>`:''}
+    </div>`).join('');
+}
+
+// ── PERFIL ──
+function renderPerfil(){
+  if(!user)return;
+  const av=document.getElementById('perfil-avatar');
+  av.textContent=user.avatar||user.nombre[0].toUpperCase();
+  av.style.background=`linear-gradient(135deg,${avatarColors[user.colorIdx||0]},var(--secondary))`;
+  document.getElementById('perfil-name').textContent=user.nombre;
+  document.getElementById('perfil-role').textContent=user.materia||'Docente';
+  document.getElementById('perfil-stats').innerHTML=`
+    <div class="perfil-stat"><div class="perfil-stat-num">${alumnos.length}</div><div class="perfil-stat-lbl">Alumnos</div></div>
+    <div class="perfil-stat"><div class="perfil-stat-num">${tareas.filter(t=>t.done).length}</div><div class="perfil-stat-lbl">Tareas hechas</div></div>
+    <div class="perfil-stat"><div class="perfil-stat-num">${clases.length}</div><div class="perfil-stat-lbl">Clases reg.</div></div>`;
+  document.getElementById('ep-nombre').value=user.nombre||'';
+  document.getElementById('ep-rol').value=user.materia||'';
+  document.getElementById('ep-inst').value=user.institucion||'';
+}
+
+// ── GUARDAR ──
+function guardarEvento(){
+  const titulo=document.getElementById('ev-titulo').value.trim();
+  const fecha=document.getElementById('ev-fecha').value;
+  if(!titulo||!fecha){showToast('⚠️ Completá título y fecha');return;}
+  eventos.push({id:Date.now(),titulo,fecha,hora:document.getElementById('ev-hora').value,lugar:document.getElementById('ev-lugar').value.trim(),notas:document.getElementById('ev-notas').value.trim(),color:selectedColor});
+  saveAll();
+  closeModal('modal-evento');
+  ['ev-titulo','ev-fecha','ev-hora','ev-lugar','ev-notas'].forEach(id=>document.getElementById(id).value='');
+  renderAgenda();
+  showToast('✅ Evento guardado');
+}
+
+function guardarTarea(){
+  const titulo=document.getElementById('ta-titulo').value.trim();
+  if(!titulo){showToast('⚠️ Escribí una descripción');return;}
+  tareas.unshift({id:Date.now(),titulo,fecha:document.getElementById('ta-fecha').value,prioridad:document.getElementById('ta-prioridad').value,cat:document.getElementById('ta-cat').value,done:false});
+  saveAll();
+  closeModal('modal-tarea');
+  ['ta-titulo','ta-fecha'].forEach(id=>document.getElementById(id).value='');
+  renderTareas();
+  renderHome();
+  showToast('✅ Tarea guardada');
+}
+
+function guardarNota(){
+  const titulo=document.getElementById('no-titulo').value.trim();
+  const contenido=document.getElementById('no-contenido').value.trim();
+  if(!contenido){showToast('⚠️ Escribí el contenido de la nota');return;}
+  notas.unshift({id:Date.now(),titulo,contenido,fecha:new Date().toISOString()});
+  saveAll();
+  closeModal('modal-nota');
+  ['no-titulo','no-contenido'].forEach(id=>document.getElementById(id).value='');
+  renderNotas();
+  showToast('✅ Nota guardada');
+}
+
+function guardarAlumno(){
+  const nombre=document.getElementById('al-nombre').value.trim();
+  if(!nombre){showToast('⚠️ Escribí el nombre');return;}
+  const obs=document.getElementById('al-obs').value.trim();
+  const grupoId = grupoActualIdx !== null ? grupos[grupoActualIdx]?.id : null;
+  alumnos.push({id:Date.now(),nombre,grupoId,estado:document.getElementById('al-estado').value,observaciones:obs?[{texto:obs,fecha:new Date().toISOString()}]:[],notasNumericas:[]});
+  saveAll();
+  closeModal('modal-alumno');
+  ['al-nombre','al-obs'].forEach(id=>document.getElementById(id).value='');
+  renderAlumnos();
+  showToast('✅ Alumno/a agregado');
+}
+
+function guardarHabito(){
+  const nombre=document.getElementById('ha-nombre').value.trim();
+  if(!nombre){showToast('⚠️ Escribí el nombre del hábito');return;}
+  habitos.push({id:Date.now(),nombre,icon:selectedHabitoIcon,dias:[false,false,false,false,false,false,false]});
+  saveAll();
+  closeModal('modal-habito');
+  document.getElementById('ha-nombre').value='';
+  renderHabitos();
+  showToast('✅ Hábito creado');
+}
+
+function guardarGasto(){
+  const desc=document.getElementById('ga-desc').value.trim();
+  const monto=document.getElementById('ga-monto').value;
+  if(!desc||!monto){showToast('⚠️ Completá descripción y monto');return;}
+  gastos.unshift({id:Date.now(),tipo:document.getElementById('ga-tipo').value,desc,monto:parseFloat(monto),cat:document.getElementById('ga-cat').value,fecha:new Date().toISOString()});
+  saveAll();
+  closeModal('modal-gasto');
+  ['ga-desc','ga-monto'].forEach(id=>document.getElementById(id).value='');
+  renderGastos();
+  showToast('✅ Movimiento registrado');
+}
+
+function guardarClase(){
+  const tema=document.getElementById('cl-tema').value.trim();
+  const fecha=document.getElementById('cl-fecha').value;
+  if(!tema||!fecha){showToast('⚠️ Completá tema y fecha');return;}
+  clases.unshift({id:Date.now(),fecha,curso:document.getElementById('cl-curso').value.trim(),tema,actividades:document.getElementById('cl-actividades').value.trim(),tarea:document.getElementById('cl-tarea').value.trim(),obs:document.getElementById('cl-obs').value.trim()});
+  saveAll();
+  closeModal('modal-clase');
+  ['cl-fecha','cl-curso','cl-tema','cl-actividades','cl-tarea','cl-obs'].forEach(id=>document.getElementById(id).value='');
+  renderClases();
+  showToast('✅ Clase registrada');
+}
+
+function guardarPerfil(){
+  user.nombre=document.getElementById('ep-nombre').value.trim()||user.nombre;
+  user.materia=document.getElementById('ep-rol').value.trim();
+  user.institucion=document.getElementById('ep-inst').value.trim();
+  user.avatar=user.nombre[0].toUpperCase();
+  LSS('lumia_user',user);
+  const users=LSG('lumia_users')||[];
+  const idx=users.findIndex(u=>u.id===user.id);
+  if(idx>=0){users[idx]=user;LSS('lumia_users',users);}
+  closeModal('modal-edit-perfil');
+  updateHeader();
+  renderPerfil();
+  showToast('✅ Perfil actualizado');
+}
+
+// ── NAVEGACIÓN ──
+function goPage(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const pageEl=document.getElementById('page-'+page);
+  if(pageEl) pageEl.classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const navMap={home:'nav-home',agenda:'nav-agenda',alumnos:'nav-alumnos',tareas:'nav-tareas',mas:'nav-mas',notas:'nav-mas',perfil:'nav-mas',habitos:'nav-mas',bienestar:'nav-mas',gastos:'nav-mas',clases:'nav-mas'};
+  const navEl=document.getElementById(navMap[page]);
+  if(navEl) navEl.classList.add('active');
+  if(page==='agenda') renderAgenda();
+  if(page==='perfil') renderPerfil();
+  if(page==='bienestar') renderBienestar();
+  if(page==='habitos') renderHabitos();
+  if(page==='gastos') renderGastos();
+  if(page==='clases') renderClases();
+}
+
+function goSubPage(page){ goPage(page); }
+
+// ── MODALES ──
+function openModal(id){
+  document.getElementById(id).classList.add('open');
+  if(id==='modal-notif') actualizarEstadoNotif();
+}
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function closeModalOutside(e,id){ if(e.target===document.getElementById(id)) closeModal(id); }
+
+function selectColor(el,color){
+  selectedColor=color;
+  document.querySelectorAll('.color-opt').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function selectHabitoIcon(el,icon){
+  selectedHabitoIcon=icon;
+  document.querySelectorAll('#habito-icons span').forEach(s=>s.style.borderColor='transparent');
+  el.style.borderColor='var(--primary)';
+}
+
+// ── TEMA ──
+function setTheme(cls){
+  document.body.className=cls;
+  config.theme=cls;
+  LSS('lumia_config',config);
+  closeModal('modal-tema');
+  showToast('✨ Tema aplicado');
+}
+function applyTheme(cls){ if(cls) document.body.className=cls; }
+
+// ── NOTIFICACIONES ──
+async function activarNotificaciones(){
+  if(!('Notification' in window)){showToast('Tu navegador no soporta notificaciones');return;}
+  const perm=await Notification.requestPermission();
+  if(perm==='granted'){
+    actualizarEstadoNotif();
+    enviarAlSW();
+    showToast('✅ Notificaciones activadas 🌸');
+    if(swReg) swReg.showNotification('✨ Lumia activada',{body:'Vas a recibir recordatorios de tus eventos y tareas.',icon:'./icon-192.png',vibrate:[200,100,200]});
+  } else { showToast('❌ Permiso denegado. Activalo en Ajustes del celu'); }
+}
+
+function actualizarEstadoNotif(){
+  const el=document.getElementById('notif-status-text');
+  const btn=document.getElementById('btn-notif-activar');
+  if(!el)return;
+  if(!('Notification' in window)){el.textContent='Tu navegador no soporta notificaciones.';return;}
+  if(Notification.permission==='granted'){
+    el.innerHTML='<span style="color:var(--green);">✅ Notificaciones activadas.</span> Vas a recibir alertas de tus eventos y tareas.';
+    btn.textContent='Probar notificación 🔔';
+  } else if(Notification.permission==='denied'){
+    el.innerHTML='<span style="color:var(--accent);">❌ Permiso denegado.</span> Andá a Ajustes > Apps > Chrome > Notificaciones para activarlo.';
+  } else {
+    el.textContent='Activá las notificaciones para recibir alertas automáticas de tus eventos y tareas.';
+  }
+  document.getElementById('notif-badge').classList.toggle('show', Notification.permission!=='granted');
+}
+
+function checkNotificaciones(){
+  if(Notification.permission==='granted') enviarAlSW();
+  actualizarEstadoNotif();
+}
+
+function enviarAlSW(){
+  if(swReg&&swReg.active){
+    swReg.active.postMessage({type:'SCHEDULE_CHECK',eventos,tareas,config});
+  }
+}
+
+// ── UTILS ──
+function showToast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2500);
+}
+
+function formatFecha(ds){
+  if(!ds)return'';
+  const d=new Date(ds+'T12:00:00');
+  const diff=Math.round((d-new Date())/(86400000));
+  if(diff===0)return'Hoy';
+  if(diff===1)return'Mañana';
+  if(diff===-1)return'Ayer';
+  return d.toLocaleDateString('es-AR',{day:'numeric',month:'short'});
+}
+
+function formatFechaCorta(ds){
+  if(!ds)return'';
+  return new Date(ds).toLocaleDateString('es-AR',{day:'numeric',month:'short',year:'numeric'});
+}
+
+function exportData(){
+  const data={user,eventos,tareas,notas,alumnos,habitos,gastos,clases};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='lumia-backup.json';
+  a.click();
+  showToast('📤 Datos exportados');
+}
+</script>
+</body>
+</html>
