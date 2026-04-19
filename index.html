@@ -1834,7 +1834,7 @@ function verAlumno(idx) {
           <div class="nota-num-materia">${n.desc || 'Evaluación'}</div>
           <div style="display:flex;align-items:center;gap:8px;">
             <div class="nota-num-fecha">${formatFechaCorta(n.fecha)}</div>
-            <button onclick="eliminarNota(${idx},${ni})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;">×</button>
+            <button onclick="eliminarNotaNumerica(${idx},${ni})" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;">×</button>
           </div>
         </div>
         <div class="nota-num-valor" style="color:${nColor};">${parseFloat(n.valor).toFixed(1)}</div>
@@ -1868,7 +1868,7 @@ function agregarNota(idx) {
   showToast('✅ Nota guardada');
 }
 
-function eliminarNota(alumnoIdx, notaIdx) {
+function eliminarNotaNumerica(alumnoIdx, notaIdx) {
   alumnos[alumnoIdx].notasNumericas.splice(notaIdx, 1);
   saveAll();
   verAlumno(alumnoIdx);
@@ -2089,7 +2089,11 @@ function goPage(page){
   const navMap={home:'nav-home',agenda:'nav-agenda',alumnos:'nav-alumnos',tareas:'nav-tareas',mas:'nav-mas',notas:'nav-mas',perfil:'nav-mas',habitos:'nav-mas',bienestar:'nav-mas',gastos:'nav-mas',clases:'nav-mas'};
   const navEl=document.getElementById(navMap[page]);
   if(navEl) navEl.classList.add('active');
+  if(page==='home') renderHome();
   if(page==='agenda') renderAgenda();
+  if(page==='tareas') renderTareas();
+  if(page==='notas') renderNotas();
+  if(page==='alumnos') renderGrupos();
   if(page==='perfil') renderPerfil();
   if(page==='bienestar') renderBienestar();
   if(page==='habitos') renderHabitos();
