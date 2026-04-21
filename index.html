@@ -1548,6 +1548,10 @@ function renderAgendaDia(cont) {
           <div class="evento-title">${ev.titulo}</div>
           ${ev.lugar?`<div class="evento-meta">📍 ${ev.lugar}</div>`:''}
           ${ev.notas?`<div class="evento-meta">${ev.notas}</div>`:''}
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <button onclick="editarEvento(${eventos.indexOf(ev)})" style="background:var(--primary-light);border:none;border-radius:var(--radius-xs);padding:5px 12px;font-size:12px;color:var(--primary-dark);cursor:pointer;font-family:var(--font);font-weight:600;">✏️ Editar</button>
+            <button onclick="eliminarEvento(${eventos.indexOf(ev)})" style="background:none;border:1px solid var(--border);border-radius:var(--radius-xs);padding:5px 12px;font-size:12px;color:var(--accent);cursor:pointer;font-family:var(--font);font-weight:600;">🗑️ Eliminar</button>
+          </div>
         </div>
       </div>`).join('') : '<div class="empty"><span class="empty-icon">📅</span><h3>Sin eventos</h3><p>Tocá + para agregar un evento</p></div>'}`;
 }
@@ -1584,7 +1588,14 @@ function renderAgendaSemana(cont) {
         <div class="evento-card">
           <div class="evento-time" style="font-size:11px;">${dias[d.getDay()]} ${d.getDate()}<br>${ev.hora||''}</div>
           <div class="evento-bar" style="background:${ev.color||'var(--primary)'}"></div>
-          <div class="evento-info"><div class="evento-title">${ev.titulo}</div>${ev.lugar?`<div class="evento-meta">📍 ${ev.lugar}</div>`:''}</div>
+          <div class="evento-info">
+            <div class="evento-title">${ev.titulo}</div>
+            ${ev.lugar?`<div class="evento-meta">📍 ${ev.lugar}</div>`:''}
+            <div style="display:flex;gap:6px;margin-top:6px;">
+              <button onclick="editarEvento(${eventos.indexOf(ev)})" style="background:var(--primary-light);border:none;border-radius:var(--radius-xs);padding:4px 10px;font-size:11px;color:var(--primary-dark);cursor:pointer;font-family:var(--font);font-weight:600;">✏️ Editar</button>
+              <button onclick="eliminarEvento(${eventos.indexOf(ev)})" style="background:none;border:1px solid var(--border);border-radius:var(--radius-xs);padding:4px 10px;font-size:11px;color:var(--accent);cursor:pointer;font-family:var(--font);font-weight:600;">🗑️ Eliminar</button>
+            </div>
+          </div>
         </div>`);
     }).join('') || '<div class="empty"><span class="empty-icon">📅</span><h3>Semana libre</h3><p>No hay eventos esta semana</p></div>'}`;
 }
@@ -1998,6 +2009,57 @@ function renderPerfil(){
 }
 
 // ── GUARDAR ──
+function editarEvento(idx) {
+  const ev = eventos[idx];
+  if (!ev) return;
+  // Fill modal with existing data
+  document.getElementById('ev-titulo').value = ev.titulo || '';
+  document.getElementById('ev-fecha').value = ev.fecha || '';
+  document.getElementById('ev-hora').value = ev.hora || '';
+  document.getElementById('ev-lugar').value = ev.lugar || '';
+  document.getElementById('ev-notas').value = ev.notas || '';
+  selectedColor = ev.color || '#B8A9E8';
+  // Mark all color opts
+  document.querySelectorAll('.color-opt').forEach(c => {
+    c.classList.toggle('selected', c.style.background === selectedColor || c.getAttribute('onclick')?.includes(selectedColor));
+  });
+  // Change save button to update
+  const btn = document.querySelector('#modal-evento .btn-primary');
+  btn.textContent = 'Actualizar evento';
+  btn.onclick = () => actualizarEvento(idx);
+  openModal('modal-evento');
+}
+
+function actualizarEvento(idx) {
+  const titulo = document.getElementById('ev-titulo').value.trim();
+  const fecha = document.getElementById('ev-fecha').value;
+  if (!titulo || !fecha) { showToast('⚠️ Completá título y fecha'); return; }
+  eventos[idx] = {
+    ...eventos[idx],
+    titulo, fecha,
+    hora: document.getElementById('ev-hora').value,
+    lugar: document.getElementById('ev-lugar').value.trim(),
+    notas: document.getElementById('ev-notas').value.trim(),
+    color: selectedColor
+  };
+  saveAll();
+  closeModal('modal-evento');
+  // Reset button
+  const btn = document.querySelector('#modal-evento .btn-primary');
+  btn.textContent = 'Guardar evento';
+  btn.onclick = guardarEvento;
+  renderAgenda();
+  showToast('✅ Evento actualizado');
+}
+
+function eliminarEvento(idx) {
+  if (!confirm('¿Eliminar este evento?')) return;
+  eventos.splice(idx, 1);
+  saveAll();
+  renderAgenda();
+  showToast('Evento eliminado');
+}
+
 function guardarEvento(){
   const titulo=document.getElementById('ev-titulo').value.trim();
   const fecha=document.getElementById('ev-fecha').value;
