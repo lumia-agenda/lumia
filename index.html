@@ -1560,13 +1560,13 @@ function renderAgendaDia(cont) {
 
 function renderAgendaSemana(cont) {
   const dias = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-  const startOfWeek = new Date(agendaDate);
-  startOfWeek.setDate(agendaDate.getDate() - agendaDate.getDay());
+  const startOfWeek = new Date(agendaDate.getFullYear(), agendaDate.getMonth(), agendaDate.getDate() - agendaDate.getDay(), 12, 0, 0, 0);
   const weekDays = Array.from({length:7},(_,i)=>{
-    const d = new Date(startOfWeek); d.setDate(startOfWeek.getDate()+i); return d;
+    const d = new Date(startOfWeek.getFullYear(), startOfWeek.getMonth(), startOfWeek.getDate()+i, 12, 0, 0, 0);
+    return d;
   });
   const label = `${weekDays[0].getDate()}/${weekDays[0].getMonth()+1} — ${weekDays[6].getDate()}/${weekDays[6].getMonth()+1}`;
-  const hoy = new Date().toISOString().split('T')[0];
+  const _h = new Date(); const hoy = `${_h.getFullYear()}-${String(_h.getMonth()+1).padStart(2,'0')}-${String(_h.getDate()).padStart(2,'0')}`;
   cont.innerHTML = `
     <div class="agenda-nav">
       <button class="agenda-nav-btn" onclick="changeWeek(-1)">‹</button>
@@ -1612,7 +1612,7 @@ function renderAgendaMes(cont) {
   let days = '';
   for(let i=0;i<firstDay;i++) days+=`<div class="cal-day other-month"></div>`;
   for(let d=1;d<=daysInMonth;d++){
-    const ds = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const ds = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;  // local date
     const hasEv = eventos.some(e=>e.fecha===ds);
     const isHoy = ds===hoyStr;
     days+=`<div class="cal-day ${isHoy?'today':''}" onclick="jumpToDay('${ds}')">${d}${hasEv?'<div class="cal-day-dot"></div>':''}</div>`;
@@ -2218,6 +2218,13 @@ function goSubPage(page){ goPage(page); }
 function openModal(id){
   document.getElementById(id).classList.add('open');
   if(id==='modal-notif') actualizarEstadoNotif();
+  // Set default date to today using local timezone
+  if(id==='modal-evento') {
+    const hoy = new Date();
+    const fechaLocal = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}-${String(hoy.getDate()).padStart(2,'0')}`;
+    const fechaInput = document.getElementById('ev-fecha');
+    if(fechaInput && !fechaInput.value) fechaInput.value = fechaLocal;
+  }
 }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 function closeModalOutside(e,id){ if(e.target===document.getElementById(id)) closeModal(id); }
