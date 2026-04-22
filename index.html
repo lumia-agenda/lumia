@@ -1469,7 +1469,7 @@ function renderHome() {
   document.getElementById('frase-text').textContent = `"${frase.text}"`;
   document.getElementById('frase-author').textContent = `— ${frase.author}`;
 
-  const hoyStr = now.toISOString().split('T')[0];
+  const hoyStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
   const mood = moodHistory[hoyStr];
   if (mood !== undefined) {
     document.querySelectorAll('.mood-btn')[mood].classList.add('selected');
@@ -1502,7 +1502,7 @@ function renderHome() {
 function selectMood(idx, btn) {
   document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
-  const hoyStr = new Date().toISOString().split('T')[0];
+  const d2 = new Date(); const hoyStr = `${d2.getFullYear()}-${String(d2.getMonth()+1).padStart(2,'0')}-${String(d2.getDate()).padStart(2,'0')}`;
   moodHistory[hoyStr] = idx;
   saveAll();
   showToast('Estado de ánimo guardado 🌸');
