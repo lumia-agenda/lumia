@@ -1033,6 +1033,8 @@ let selectedColor = '#B8A9E8';
 let selectedHabitoIcon = '💧';
 let agendaView = 'dia';
 let agendaDate = new Date();
+// Fix timezone: set to noon to avoid UTC offset issues
+agendaDate.setHours(12,0,0,0);
 let tareaFilter = 'todas';
 let swReg = null;
 
@@ -1531,7 +1533,7 @@ function renderAgenda() {
 }
 
 function renderAgendaDia(cont) {
-  const dateStr = agendaDate.toISOString().split('T')[0];
+  const dateStr = `${agendaDate.getFullYear()}-${String(agendaDate.getMonth()+1).padStart(2,'0')}-${String(agendaDate.getDate()).padStart(2,'0')}`;
   const label = agendaDate.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});
   const evs = eventos.filter(e => e.fecha === dateStr).sort((a,b)=>a.hora.localeCompare(b.hora));
   cont.innerHTML = `
@@ -1573,7 +1575,7 @@ function renderAgendaSemana(cont) {
     </div>
     <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px;">
       ${weekDays.map(d=>{
-        const ds = d.toISOString().split('T')[0];
+        const ds = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
         const cnt = eventos.filter(e=>e.fecha===ds).length;
         const isHoy = ds===hoy;
         return `<div onclick="jumpToDay('${ds}')" style="background:${isHoy?'var(--primary)':'var(--white)'};border-radius:var(--radius-xs);padding:8px 4px;text-align:center;cursor:pointer;border:1px solid var(--border);">
@@ -1583,7 +1585,7 @@ function renderAgendaSemana(cont) {
         </div>`;}).join('')}
     </div>
     ${weekDays.flatMap(d=>{
-      const ds = d.toISOString().split('T')[0];
+      const ds = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
       return eventos.filter(e=>e.fecha===ds).map(ev=>`
         <div class="evento-card">
           <div class="evento-time" style="font-size:11px;">${dias[d.getDay()]} ${d.getDate()}<br>${ev.hora||''}</div>
@@ -1606,7 +1608,7 @@ function renderAgendaMes(cont) {
   const firstDay = new Date(y,m,1).getDay();
   const daysInMonth = new Date(y,m+1,0).getDate();
   const hoy = new Date();
-  const hoyStr = hoy.toISOString().split('T')[0];
+  const hoyStr = `${hoy.getFullYear()}-${String(hoy.getMonth()+1).padStart(2,'0')}-${String(hoy.getDate()).padStart(2,'0')}`;
   let days = '';
   for(let i=0;i<firstDay;i++) days+=`<div class="cal-day other-month"></div>`;
   for(let d=1;d<=daysInMonth;d++){
@@ -1627,7 +1629,7 @@ function renderAgendaMes(cont) {
     </div>`;
 }
 
-function changeDay(n){ agendaDate.setDate(agendaDate.getDate()+n); renderAgenda(); }
+function changeDay(n){ agendaDate.setDate(agendaDate.getDate()+n); agendaDate.setHours(12,0,0,0); renderAgenda(); }
 function changeWeek(n){ agendaDate.setDate(agendaDate.getDate()+n*7); renderAgenda(); }
 function changeMonth(n){ agendaDate.setMonth(agendaDate.getMonth()+n); renderAgenda(); }
 function jumpToDay(ds){ agendaDate=new Date(ds+'T12:00:00'); agendaView='dia'; document.querySelectorAll('.view-tab')[0].click(); }
